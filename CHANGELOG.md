@@ -10,6 +10,18 @@
 
 ---
 
+## 2026-08-28（全庫審查）
+
+### 變更
+
+- **重寫 `REVIEW.md`。** 寫入 overlay 落地 SHA、GitHub Actions URL、CodeQL 4 筆 open 告警，以及 overlay 造成的產品 CI 紅燈。
+- **產品 `ci.yml`：** overlay-only 提交略過 plugin 版號閘門，避免 fork 版號無產品變更地領先上游。
+- **`.gitattributes`：** 不再把 HTML／SVG 標成 binary，讓 `git diff --ignore-space-at-eol` 能核對 icon 產物。
+
+本輪不回貢。
+
+---
+
 ## 2026-08-28（建立 Windows-first 維護型 fork）
 
 ### 新增

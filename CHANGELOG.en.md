@@ -11,6 +11,18 @@ Per-commit adopt/skip reasoning is recorded in [`docs/fork/DECISIONS.md`](docs/f
 
 ---
 
+## 2026-08-28 (full-repo review)
+
+### Changed
+
+- **Rewrote `REVIEW.md`.** Records the overlay SHA, GitHub Actions URLs, four open CodeQL alerts, and the product CI failures caused by the overlay.
+- **Product `ci.yml`:** overlay-only commits skip the plugin version gate so this fork does not race ahead of upstream versions.
+- **`.gitattributes`:** stop marking HTML/SVG as binary so `git diff --ignore-space-at-eol` can verify generated icons.
+
+This pass does not contribute back upstream.
+
+---
+
 ## 2026-08-28 (create Windows-first maintenance fork)
 
 ### Added

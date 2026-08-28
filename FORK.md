@@ -26,7 +26,7 @@
 | `.github/workflows/fork-maintenance.yml` | fork 文件與連結檢查 |
 | `.github/workflows/upstream-check.yml` | 每週對 `upstream/main` 做未審查 commit 檢查 |
 | `.github/workflows/pages.yml` | 加上只在官方 `cathrynlavery/diagram-design` 執行的 guard，避免本 fork 沒開 Pages 卻每次部署失敗 |
-| `.github/workflows/ci.yml` | **保留並在本 fork 跑**，這是產品回歸 |
+| `.github/workflows/ci.yml` | **保留並在本 fork 跑**；overlay-only 提交略過 plugin 版號閘門 |
 | `docs/fork/` | Windows 開發、上游審查、決策 |
 
 產品 `skills/diagram-design/`、`scripts/`、`commands/`、`prompts/`、plugin manifests 以上游為準，除非有已記錄的 fork 修正。

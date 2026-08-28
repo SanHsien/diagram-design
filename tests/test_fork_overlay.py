@@ -157,6 +157,19 @@ def test_product_ci_is_not_official_repo_only() -> None:
     assert f"github.repository == '{OFFICIAL_REPO}'" not in ci
 
 
+def test_plugin_version_gate_skips_overlay_only_commits() -> None:
+    ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert "Detect packaged plugin path changes" in ci
+    assert "steps.plugin_paths.outputs.changed == 'true'" in ci
+    assert r"^(skills/|\.claude-plugin/|\.codex-plugin/|\.factory-plugin/|\.agents/|commands/|prompts/)" in ci
+
+
+def test_gitattributes_does_not_mark_product_html_binary() -> None:
+    text = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+    assert "*.html binary" not in text
+    assert "*.svg binary" not in text
+
+
 def test_every_workflow_is_classified() -> None:
     names = {path.name for path in (ROOT / ".github" / "workflows").glob("*.yml")}
     assert names == set(UNGATED_WORKFLOWS) | set(GATED_WORKFLOWS)

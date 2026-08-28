@@ -33,7 +33,7 @@ Baseline 代表「已審查」，不代表「全部已合併」。
 
 README 衝突的解法：保留頂部 overlay，把上游新產品說明留在英文 `README.md`。不要把公開入口改成繁中主檔。來源與授權 credit 留在 README 與 `NOTICE.md`。
 
-`pages.yml` 已加上 `github.repository == 'cathrynlavery/diagram-design'`。merge 上游時若這支 workflow 被重寫，必須把閘門加回去。本 fork 的 skill 驗證走上游 `ci.yml`（在本 fork 跑）加上 `tools/dev_check.ps1`。
+`pages.yml` 已加上 `github.repository == 'cathrynlavery/diagram-design'`。merge 上游時若這支 workflow 被重寫，必須把閘門加回去。`ci.yml` 的 plugin 版號閘門有 overlay skip（只在產品 plugin 路徑變更時跑）；merge 上游時若被蓋掉，必須加回去。本 fork 的 skill 驗證走上游 `ci.yml`（在本 fork 跑）加上 `tools/dev_check.ps1`。
 
 ## 2026-08-28：fork 起點
 

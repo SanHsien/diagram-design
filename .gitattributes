@@ -34,5 +34,3 @@ tools/** text eol=lf
 *.woff binary
 *.woff2 binary
 *.ttf  binary
-*.html binary
-*.svg  binary

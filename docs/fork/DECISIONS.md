@@ -49,3 +49,15 @@
 **決定**：`reviewed_through` 設為 fork 起點 `ac490fd1ac4b4014100f93e729cb4ad198700bd4`。不寫 `reviewed_pr_through`／`reviewed_issue_through`，避免把「還沒讀 diff」標成已審。
 
 **理由**：本輪目標是開發環境。open PR（截至 #158）與 open issue 下次做上游審查時從最小編號開始看。
+
+## 2026-08-28：overlay 提交不 bump 產品 plugin 版號
+
+**決定**：`ci.yml` 的 `verify-plugin-package.py` 只在 `skills/`、plugin manifests、`commands/`、`prompts/` 有變時才跑。overlay 文件／Windows gate 提交不 bump `2.6.7`。
+
+**理由**：上游把每一次 `main` 提交都當成發佈包變更。本線若跟著 bump，fork 的 marketplace 版號會無產品變更地領先上游。merge 上游時若這段被蓋掉，要把 skip 加回去。
+
+## 2026-08-28：不要把產品 HTML／SVG 標成 git binary
+
+**決定**：`.gitattributes` 不寫 `*.html binary`／`*.svg binary`。
+
+**理由**：產品 CI 用 `git diff --ignore-space-at-eol` 核對 `build-icons.py` 產物。標成 binary 後該旗標失效，Ubuntu／macOS 把 regenerating 的 LF 與 blob 的空白差當成失敗。Windows job 碰巧綠，不是契約。

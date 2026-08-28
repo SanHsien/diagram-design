@@ -43,7 +43,26 @@ jobs:
       - name: Test plugin package tooling
         run: python3 scripts/test-plugin-package.py
 
+      # Fork overlay: overlay-only commits must not bump product plugin
+      # versions (that would diverge from upstream). Restore this skip if
+      # an upstream merge rewrites the job.
+      - name: Detect packaged plugin path changes
+        id: plugin_paths
+        env:
+          BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$BASE_REF" ] || [ "$BASE_REF" = "0000000000000000000000000000000000000000" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git diff --name-only "$BASE_REF" HEAD | grep -Eq '^(skills/|\.claude-plugin/|\.codex-plugin/|\.factory-plugin/|\.agents/|commands/|prompts/)'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Require a synchronized plugin version bump
+        if: steps.plugin_paths.outputs.changed == 'true'
         env:
           BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
         run: python3 scripts/verify-plugin-package.py "$BASE_REF"
