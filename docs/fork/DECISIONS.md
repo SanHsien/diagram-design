@@ -30,7 +30,7 @@
 
 **決定**：不上游-only guard。overlay workflows 自己 pin SHA；產品 `ci.yml` 維持上游寫法。
 
-**理由**：產品回歸（skin、geometry、import、docs sync、Windows job）就是這個 fork 要跟著跑的證據。關掉它等於本線看不見產品壞了。
+**後續**：2026-08-28 審查可修項已 pin 產品 `ci.yml` 的 checkout／setup-python／setup-node SHA；指令字串仍不動。
 
 ## 2026-08-28：Pages 部署只留在官方 repo
 
@@ -61,3 +61,15 @@
 **決定**：`.gitattributes` 不寫 `*.html binary`／`*.svg binary`。
 
 **理由**：產品 CI 用 `git diff --ignore-space-at-eol` 核對 `build-icons.py` 產物。標成 binary 後該旗標失效，Ubuntu／macOS 把 regenerating 的 LF 與 blob 的空白差當成失敗。Windows job 碰巧綠，不是契約。
+
+## 2026-08-28：審查可修項落地（不回貢）
+
+**決定**：在本 fork 修完 REVIEW 裡還能改、且不改產品信任模型／身份契約的項：產品 `ci.yml`／`pages.yml` pin action SHA、`pages.yml` checkout 加 `persist-credentials: false`、script 結束標籤正則改成 `</script\b[^>]*>`（對齊 HTML parser 能接受的 junk）。不送上游。
+
+**理由**：主人這次對話要求「可修的都修、先不考慮回貢」。plugin `homepage`、英文 README 作者 CTA、Mermaid `-->` 文法（CodeQL 誤報）仍屬產品契約，維持不改。
+
+**限制**：
+
+- 不翻英文 README、不把 Playwright 放進 overlay gate、不合併未讀的上游 PR。
+- 不在 GitHub UI 關閉 CodeQL alert（修碼後等下次掃描）。
+- 不 bump plugin 版號：本輪沒改 `skills/` 或 plugin manifests。

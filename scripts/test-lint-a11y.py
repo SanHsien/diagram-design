@@ -225,7 +225,7 @@ def main() -> int:
         )
         template_source = MOTION_TEMPLATE.read_text(encoding="utf-8")
         controller_match = re.search(
-            r"<script\b[^>]*data-diagram-controls[^>]*>(.*?)</script\s*>",
+            r"<script\b[^>]*data-diagram-controls[^>]*>(.*?)</script\b[^>]*>",
             template_source,
             re.IGNORECASE | re.DOTALL,
         )

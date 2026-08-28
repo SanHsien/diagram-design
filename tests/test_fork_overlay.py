@@ -155,6 +155,32 @@ def test_product_ci_is_not_official_repo_only() -> None:
     assert "windows-latest" in ci
     assert "persist-credentials: false" in ci
     assert f"github.repository == '{OFFICIAL_REPO}'" not in ci
+    assert "actions/checkout@v7" not in ci
+    assert "actions/setup-python@v7" not in ci
+    assert "actions/setup-node@v7" not in ci
+    assert "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" in ci
+    assert "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97" in ci
+    assert "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020" in ci
+
+
+def test_pages_workflow_pins_actions_and_drops_credentials() -> None:
+    text = (ROOT / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
+    assert "persist-credentials: false" in text
+    assert "actions/checkout@v6" not in text
+    assert "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" in text
+
+
+def test_script_close_regex_matches_html_parser_junk() -> None:
+    lint = (ROOT / "scripts" / "lint-skin.py").read_text(encoding="utf-8")
+    motion = (ROOT / "scripts" / "test-verify-motion.py").read_text(encoding="utf-8")
+    a11y = (ROOT / "scripts" / "test-lint-a11y.py").read_text(encoding="utf-8")
+    expected = r"</script\b[^>]*>"
+    assert expected in lint
+    assert expected in motion
+    assert expected in a11y
+    assert r"</script\s*>" not in lint
+    assert r"</script\s*>" not in motion
+    assert r"</script\s*>" not in a11y
 
 
 def test_plugin_version_gate_skips_overlay_only_commits() -> None:

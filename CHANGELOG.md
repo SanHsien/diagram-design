@@ -10,6 +10,17 @@
 
 ---
 
+## 2026-08-28（審查可修項落地，不回貢）
+
+### 變更
+
+- **產品 `ci.yml`／`pages.yml` pin action SHA。** checkout／setup-python／setup-node 釘完整 SHA；Pages checkout 加 `persist-credentials: false`。
+- **script 結束標籤。** `lint-skin.py` 與對應測試改為 `</script\b[^>]*>`，對齊 HTML parser 能接受的 junk。
+
+本輪不回貢。plugin `homepage`、README 作者 CTA、Mermaid `-->` 文法維持不改。
+
+---
+
 ## 2026-08-28（全庫審查）
 
 ### 變更

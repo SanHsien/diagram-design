@@ -34,7 +34,7 @@ RGBA_RE = re.compile(
 BLACK_RGB_RE = re.compile(r"rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)", re.IGNORECASE)
 SCRIPT_OPEN_RE = re.compile(r"<script\b(?P<attrs>[^>]*)>", re.IGNORECASE | re.DOTALL)
 SCRIPT_BLOCK_RE = re.compile(
-    r"<script\b(?P<attrs>[^>]*)>(?P<body>.*?)</script\s*>",
+    r"<script\b(?P<attrs>[^>]*)>(?P<body>.*?)</script\b[^>]*>",
     re.IGNORECASE | re.DOTALL,
 )
 SRC_HTTP_RE = re.compile(r"\bsrc\s*=\s*(['\"])\s*(?:https?:)?//", re.IGNORECASE)

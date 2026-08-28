@@ -11,6 +11,17 @@ Per-commit adopt/skip reasoning is recorded in [`docs/fork/DECISIONS.md`](docs/f
 
 ---
 
+## 2026-08-28 (land remaining review remediations)
+
+### Changed
+
+- **Product `ci.yml` / `pages.yml` pin action SHAs.** checkout, setup-python, and setup-node are pinned; Pages checkout sets `persist-credentials: false`.
+- **Script end tags.** `lint-skin.py` and matching tests now use `</script\b[^>]*>` so they match the junk HTML parsers accept.
+
+This pass does not contribute back upstream. Plugin homepage, README author CTAs, and Mermaid `-->` grammar stay unchanged.
+
+---
+
 ## 2026-08-28 (full-repo review)
 
 ### Changed

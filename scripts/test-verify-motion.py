@@ -58,7 +58,7 @@ def main() -> int:
 
         check("canonical-template", source, None)
         script_free_none = re.sub(
-            r"<script\b[^>]*>.*?</script\s*>", "", source, flags=re.IGNORECASE | re.DOTALL
+            r"<script\b[^>]*>.*?</script\b[^>]*>", "", source, flags=re.IGNORECASE | re.DOTALL
         )
         script_free_none = re.sub(
             r"<div data-motion-controls.*?</div>", "", script_free_none, flags=re.DOTALL
