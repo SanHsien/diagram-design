@@ -1,0 +1,38 @@
+# Normalize overlay sources. Do not force HTML/SVG/product Markdown:
+# those files must stay byte-for-byte with upstream.
+
+*.py        text eol=lf
+*.ps1       text eol=lf
+*.toml      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.json      text eol=lf
+
+/FORK.md text eol=lf
+/NOTICE.md text eol=lf
+/AGENTS.md text eol=lf
+/CLAUDE.md text eol=lf
+/REVIEW.md text eol=lf
+/CHANGELOG.md text eol=lf
+/CHANGELOG.en.md text eol=lf
+/GITHUB_REPO.md text eol=lf
+/CONTRIBUTING.md text eol=lf
+/SECURITY.md text eol=lf
+/CODE_OF_CONDUCT.md text eol=lf
+/README.md text eol=lf
+docs/fork/** text eol=lf
+.cursor/** text eol=lf
+tests/** text eol=lf
+tools/** text eol=lf
+
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.html binary
+*.svg  binary

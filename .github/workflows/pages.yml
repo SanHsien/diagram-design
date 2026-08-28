@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.repository == 'cathrynlavery/diagram-design'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,6 +31,7 @@ jobs:
           path: skills/diagram-design/assets
 
   deploy:
+    if: github.repository == 'cathrynlavery/diagram-design'
     needs: build
     runs-on: ubuntu-latest
     environment:

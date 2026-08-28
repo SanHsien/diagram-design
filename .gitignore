@@ -2,3 +2,15 @@
 .mcp.json
 __pycache__/
 *.py[cod]
+
+# Fork overlay
+.venv/
+.pytest_cache/
+.ruff_cache/
+.env*
+cookies.txt
+cookies.json
+credentials.json
+*.pem
+upstream-review-report.md
+dependency-freshness-report.md

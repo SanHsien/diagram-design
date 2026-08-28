@@ -1,5 +1,14 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: Security vulnerability
+  - name: 本 fork 貢獻說明
+    url: https://github.com/SanHsien/diagram-design/blob/main/CONTRIBUTING.md
+    about: overlay、Windows gate 與本線文件問題看這裡；產品 skill／範例請去上游。
+  - name: 安全問題私下回報（本 fork overlay）
+    url: https://github.com/SanHsien/diagram-design/security/advisories/new
+    about: overlay 漏洞、憑證或敏感資料問題不要建立公開 Issue。
+  - name: 上游產品漏洞
     url: https://github.com/cathrynlavery/diagram-design/security/advisories/new
-    about: Report a suspected vulnerability privately — do not open a public issue for it.
+    about: skill、HTML 範例、匯入腳本與驗證器的疑似漏洞，回報原作者。
+  - name: 上游原始專案
+    url: https://github.com/cathrynlavery/diagram-design
+    about: 產品 skill、圖表類型與匯入路徑的問題，先確認是否也該回報原作者。

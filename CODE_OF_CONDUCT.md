@@ -1,5 +1,7 @@
 # Contributor Covenant Code of Conduct
 
+> **SanHsien 維護型 fork。** 本線社群空間是 [`SanHsien/diagram-design`](https://github.com/SanHsien/diagram-design)。產品上游社群仍在 [`cathrynlavery/diagram-design`](https://github.com/cathrynlavery/diagram-design)。維護規則見 [`FORK.md`](FORK.md)。
+
 ## Our Pledge
 
 We as members, contributors, and leaders pledge to make participation in our

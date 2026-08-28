@@ -1,3 +1,5 @@
+> **本線 PR 必須打到 `SanHsien/diagram-design`。** 對上游開 PR 需要維護者在當次對話明確同意回貢。overlay 驗收：`pwsh -NoProfile -File tools\dev_check.ps1`。產品檔有動再跑下文 validation gates。見 [`FORK.md`](../FORK.md)。
+
 ## What does this PR do?
 
 <!-- One or two sentences: what changed and why. -->

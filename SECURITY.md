@@ -1,5 +1,7 @@
 # Security Policy
 
+> **SanHsien 維護型 fork。** 產品漏洞（skill、HTML 範例、匯入腳本、驗證器、plugin package）請回報上游 [`cathrynlavery/diagram-design`](https://github.com/cathrynlavery/diagram-design/security/advisories/new)；若該入口不可用，改開上游 private contact，不要先建立公開 Issue。本 fork overlay（`tools/`、`docs/fork/`、workflow）開 [`SanHsien/diagram-design`](https://github.com/SanHsien/diagram-design/security/advisories/new) 的 Security tab。維護規則見 [`FORK.md`](FORK.md)。
+
 ## Supported versions
 
 Security fixes are applied to the latest commit on the `main` branch. This

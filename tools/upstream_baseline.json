@@ -1,0 +1,7 @@
+{
+  "repo": "https://github.com/cathrynlavery/diagram-design.git",
+  "branch": "main",
+  "reviewed_through": "ac490fd1ac4b4014100f93e729cb4ad198700bd4",
+  "reviewed_date": "2026-08-28",
+  "notes": "Fork starting point. Overlay-only setup; open upstream PRs and issues were not triaged in this pass."
+}

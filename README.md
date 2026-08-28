@@ -1,5 +1,7 @@
 # Diagram Design
 
+> **SanHsien 維護型 fork。** 產品說明以下文上游英文為準。繁中維護規則見 [`FORK.md`](FORK.md)；本輪審查見 [`REVIEW.md`](REVIEW.md)。`origin` 是 [`SanHsien/diagram-design`](https://github.com/SanHsien/diagram-design)，`upstream` 是 [`cathrynlavery/diagram-design`](https://github.com/cathrynlavery/diagram-design)。
+
 **Editorial diagrams your designer won't hate.**
 
 <a href="https://trendshift.io/repositories/26141?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-26141" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/26141" alt="cathrynlavery%2Fdiagram-design | Trendshift" width="250" height="55"/></a>

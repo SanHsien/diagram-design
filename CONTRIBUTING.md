@@ -1,5 +1,16 @@
 # Contributing to Diagram Design
 
+> **SanHsien 維護型 fork。** 本線的 overlay／Windows gate／文件問題打到 [`SanHsien/diagram-design`](https://github.com/SanHsien/diagram-design)。產品行為（skill、範例 HTML、匯入腳本、驗證器）的貢獻請去上游 [`cathrynlavery/diagram-design`](https://github.com/cathrynlavery/diagram-design)。維護規則見 [`FORK.md`](FORK.md)。
+>
+> 本線 clone：
+>
+> ```powershell
+> git clone https://github.com/SanHsien/diagram-design.git
+> gh repo set-default SanHsien/diagram-design
+> ```
+>
+> overlay 驗收：`pwsh -NoProfile -File tools\dev_check.ps1`。產品閘門仍用下文 `python3 scripts/...`。本線 overlay 維護直接推 `origin/main`；上游產品貢獻仍請開分支。
+
 Thanks for wanting to contribute — this project only gets better with more eyes on it.
 
 Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) first. All contributions are expected to keep the community welcoming.
