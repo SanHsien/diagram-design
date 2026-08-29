@@ -67,7 +67,7 @@ Plugin manifests 仍是上游 `2.6.7`；`homepage`／`repository` 仍指 `cathry
 ```text
 pwsh -NoProfile -File tools\dev_check.ps1
 → compileall / ruff E9+F / pytest / check_links 全綠
-→ 落地時 28 passed；本輪補兩則契約測試後應為 30 passed
+→ 落地時 28 passed；本輪可修項落地後 32 passed；2026-08-29 補上游 PR／issue 檢查後 42 passed
 → 14 份 overlay 文件，0 斷連結
 → WINDOWS DEV CHECK GREEN
 ```
