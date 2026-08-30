@@ -64,3 +64,19 @@ README 衝突的解法：保留頂部 overlay，把上游新產品說明留在�
 待辦清單列進 step summary——**那份清單就是後續 triage 的工作單，這支檢查會是紅的直到做完為止。**
 
 2026-08-29 實查：PR 116 筆（最高 `#160`）、issue 40 筆（最高 `#161`）。
+
+
+## 2026-08-30：初次 triage 完成，水位推進到 `b52a33bfeef85d43995193ee52c13b485154b7b4`
+
+上一節說「本輪沒有逐筆讀那些 diff，所以 baseline 不寫 PR／issue watermark」。**本輪做完了。**
+
+- commit：合併上游唯一的新 commit `b52a33b`（#160，44 檔 +6522）。衝突只有 `ci.yml` 一處，
+  兩邊各加一個不同的 step，都保留。實查 `pages.yml` 的官方-repo guard、README 頂部 overlay、
+  `ci.yml` 的 plugin 版號 skip、以及本 fork 對 `scripts/` 的三處 `</script[^>]*>` 強化全部保住。
+- PR：**#163**（117 筆看過分類）
+- issue：**#162**
+
+判準與逐項理由見 [`DECISIONS.md`](DECISIONS.md) 2026-08-30 條目。核心是：本 fork 是
+overlay-only、產品原始碼與上游逐位元組相同，所以被上游拒收的 PR 在這裡不可能是在修「本 fork
+才有的缺陷」；唯一該例外檢查的 Windows-first／CJK 那一類實查只有 `#76`／`#86` 兩筆，
+而合併之後它們的內容都已經在 `ALLOWED_FONTS` 裡。

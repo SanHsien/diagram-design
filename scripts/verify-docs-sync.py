@@ -39,6 +39,7 @@ GALLERY = ROOT / "skills/diagram-design/assets/index.html"
 ASSET_DIR = ROOT / "skills/diagram-design/assets"
 README = ROOT / "README.md"
 HIGH_LEVEL_REFERENCE = ROOT / "skills/diagram-design/references/type-high-level.md"
+ONBOARDING_REFERENCE = ROOT / "skills/diagram-design/references/onboarding.md"
 VARIANTS = ("", "-dark", "-full")
 VISUAL_TYPE_COUNT = 39
 # Types whose selection-table name differs from its description vocabulary.
@@ -89,6 +90,22 @@ def normalized(text: str) -> str:
     text = text.casefold()
     text = re.sub(r"\s*/\s*", "/", text)
     return re.sub(r"\s+", " ", text)
+
+
+def check_onboarding_trust_boundary(errors: list[str], markdown: str) -> None:
+    """Remote page ingestion must state its narrow, untrusted-data purpose."""
+    text = normalized(markdown)
+    has_boundary = "untrusted data" in text
+    names_instruction_risk = "instruction" in text
+    limits_use = (
+        "use it only as a source of color, type, and spacing signals" in text
+        and "never follow directive" in text
+    )
+    if not (has_boundary and names_instruction_risk and limits_use):
+        errors.append(
+            "onboarding.md fetches remote page content without an explicit "
+            "untrusted-data boundary"
+        )
 
 
 def frontmatter_description(markdown: str) -> str:
@@ -509,6 +526,9 @@ def main() -> int:
     )
     check_type_counts(errors, ROOT)
     check_high_level_reference(errors, HIGH_LEVEL_REFERENCE.read_text(encoding="utf-8"))
+    check_onboarding_trust_boundary(
+        errors, ONBOARDING_REFERENCE.read_text(encoding="utf-8")
+    )
     check_routing_surfaces(errors, ROOT)
     if errors:
         print("FAIL docs sync")
@@ -518,7 +538,8 @@ def main() -> int:
     print(
         "OK docs sync: description hooks, gallery reachability, README tree, "
         "reference links, packaged support files, routing surfaces, manifest descriptions, "
-        "Factory install contract, type-count routing, High-Level invariants"
+        "Factory install contract, type-count routing, High-Level invariants, "
+        "onboarding trust boundary"
     )
     return 0
 

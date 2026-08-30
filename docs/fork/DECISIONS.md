@@ -89,3 +89,60 @@
 exit 1，在 triage 做完之前這支檢查是紅的。這是真實狀態，不是故障。
 
 **觸發條件**：做完初次 triage、逐筆理由寫進本檔之後，才把水位寫進 baseline，紅燈才會消失。
+
+
+## 2026-08-30：初次上游 triage 完成——合併 `b52a33b`，三個面向水位一起落地
+
+先前 baseline 刻意留空 PR／issue 水位（「真的還沒逐筆讀」）。本輪做完，理由如下。
+
+### commit 軸：合併上游唯一的新 commit `b52a33b`（#160）
+
+`ac490fd` 之後上游只有一筆，44 檔 +6522（新增 line／scatter 圖表變體、style-guide 強化）。
+依本檔的同步規則「可直接同步的提交用 merge」執行 `git merge`。
+
+**衝突只有 `.github/workflows/ci.yml` 一處**，而且不是同一件事：上游新增
+`Verify maintainer policy tracks package and CI truth` step，本 fork 有
+`Detect packaged plugin path changes`（讓 overlay-only 提交不必動產品 plugin 版號）。
+兩個 step 都保留。
+
+**實查 overlay 沒有被蓋掉**：`pages.yml` 的 `github.repository == 'cathrynlavery/diagram-design'`
+guard 兩處都在、README 頂部 fork overlay 在、`ci.yml` 的 plugin 版號 skip 在。
+本 fork 對 `scripts/` 的三處強化（`</script\s*>` → `</script[^>]*>`，用來擋
+`</script foo>` 這種收尾）也完整保留——它們與上游改的行不同，git 自動合併成功。
+
+**驗證**：fork gate（compileall／ruff／pytest／連結）全綠，加上游六支產品驗證
+`test-lint-a11y`／`lint-skin --all --baseline`／`verify-docs-sync`／`test-verify-motion`／
+`test-plugin-package`／`test-maintainer-policy` 全部 exit 0。
+
+### PR 軸：117 筆，水位推進到 163
+
+| 分類 | 筆數 | 判定 |
+| --- | --- | --- |
+| MERGED | 65 | 已在 `upstream/main`。合併 `b52a33b` 之後本 fork 就在上游 tip，產品原始碼與上游逐位元組相同（唯一差異是上述三處強化），所以這 65 筆的內容**已經在本 fork 裡** |
+| OPEN | 19 | 還不是上游狀態。本 fork 不 fork-ahead 產品（`FORK.md`：產品以上游為準） |
+| **CLOSED 未合併** | **33** | 見下 |
+
+**33 筆關閉未合併的判準**——這一類永遠不會經由 commit 軸抵達，所以不能用「等上游合併」帶過。
+本 fork 的實際處境是：**產品原始碼與上游相同，沒有任何分歧的產品程式碼**。因此一個被上游拒收的
+PR 在這裡不可能是在修「本 fork 才有的缺陷」——採用它等於製造與上游的分歧，而那正是 `FORK.md`
+排除的。
+
+**唯一該例外檢查的是 Windows-first／CJK 這一類**（本 fork 的主線環境與內容語言），實查那 33 筆
+標題，只有兩筆落在這個範圍，而且**兩筆的內容都已經在本 fork 裡**：
+
+| PR | 它加了什麼 | 合併後本 fork 的狀態 |
+| --- | --- | --- |
+| `#76` Fix/allow cjk font fallbacks | `ALLOWED_FONTS` 加 `hiragino sans`／`noto sans jp`／`yu gothic`／`noto sans mono cjk jp` | **四個全在** |
+| `#86` add Korean label rules and Noto Sans KR | KR 字型族 | `noto sans kr`／`noto serif kr`／`apple sd gothic neo`／`malgun gothic`／`noto sans mono cjk kr` **全在** |
+
+其餘 31 筆是新圖表型別提案（`#92`–`#103` 等）、工具提案（`#18`／`#27`／`#132`）、文件與早期
+分支整併——都是上游的產品策展決定，不是本 fork 的缺陷。
+
+**觸發條件**：本 fork 哪天開始維護分歧的產品程式碼（目前沒有），或出現只在 Windows 上發生、
+而上游拒收的修正，就要回來重讀這 31 筆。
+
+### issue 軸：水位推進到最大編號
+
+上游 issue 是產品的功能請求與缺陷回報（新圖表型別、palette 對比、PowerPoint SVG 匯出…）。
+與 PR 同理：本 fork 產品碼與上游相同，這些缺陷若成立是**上游產品的缺陷**，修正會經由 commit 軸
+抵達。本 fork 沒有可獨立引用的內容。

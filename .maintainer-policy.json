@@ -15,6 +15,10 @@
       {
         "path": ".codex-plugin/plugin.json",
         "json_pointer": "/version"
+      },
+      {
+        "path": ".factory-plugin/plugin.json",
+        "json_pointer": "/version"
       }
     ],
     "require_synchronized": true,
@@ -24,21 +28,30 @@
   "gates": {
     "local_commands": [
       "python3 scripts/test-plugin-package.py",
+      "python3 scripts/test-maintainer-policy.py",
       "python3 scripts/verify-plugin-package.py origin/main",
       "npx --yes @anthropic-ai/claude-code@2.1.229 plugin validate . --strict",
       "python3 scripts/test-lint-a11y.py",
       "python3 scripts/verify-semantic-motion.py --markdown-only",
       "python3 scripts/verify-semantic-motion.py --example-only",
+      "python3 scripts/test-verify-semantic-motion.py",
       "python3 scripts/verify-motion.py --shipped",
       "python3 scripts/test-build-icons-quoted-attributes.py",
       "python3 scripts/test-build-icons-devicon.py",
       "python3 scripts/test-fix-mojibake.py",
       "python3 scripts/lint-skin.py --all --baseline",
+      "python3 scripts/lint-render.py --self-test",
+      "python3 scripts/lint-render.py --all",
+      "python3 scripts/test-verify-polar.py",
+      "python3 scripts/verify-polar.py",
       "python3 scripts/verify-sequence-oauth.py",
+      "python3 scripts/test-verify-sequence-oauth.py",
       "python3 scripts/verify-drawio-import.py",
       "python3 scripts/test-verify-drawio-import.py",
       "python3 scripts/verify-mermaid-import.py",
       "python3 scripts/test-verify-motion.py",
+      "python3 scripts/verify-doctor.py",
+      "python3 scripts/test-verify-doctor.py",
       "python3 scripts/verify-docs-sync.py",
       "python3 scripts/test-verify-docs-sync.py",
       "python3 scripts/verify-screenshot-freshness.py",
@@ -53,8 +66,16 @@
       "python3 scripts/test-verify-slopegraph.py",
       "python3 scripts/verify-ridgeline.py --all",
       "python3 scripts/test-verify-ridgeline.py",
+      "python3 scripts/verify-sankey.py --all",
+      "python3 scripts/test-verify-sankey.py",
       "python3 scripts/verify-bubble.py --all",
       "python3 scripts/test-verify-bubble.py",
+      "python3 scripts/verify-bump.py --all",
+      "python3 scripts/test-verify-bump.py",
+      "python3 scripts/verify-beeswarm.py --all",
+      "python3 scripts/test-verify-beeswarm.py",
+      "python3 scripts/verify-skin-polarity.py --all",
+      "python3 scripts/test-verify-skin-polarity.py",
       "python3 scripts/build-icons.py && git diff --ignore-space-at-eol --exit-code -- skills/diagram-design/assets/icons.html skills/diagram-design/references/primitive-icons.md"
     ],
     "required_check_names": [],
