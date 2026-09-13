@@ -120,8 +120,10 @@ def test_readme_keeps_upstream_english_product_contract() -> None:
     assert "FORK.md" in readme
     assert "REVIEW.md" in readme
     assert "Editorial diagrams" in readme
-    assert "39 editorial diagram types" in readme
+    assert "Editorial diagram types for Claude Code" in readme
     assert "MIT" in (ROOT / "LICENSE").read_text(encoding="utf-8")
+
+
 
 
 def test_link_checker_skips_product_readme_and_scans_review() -> None:

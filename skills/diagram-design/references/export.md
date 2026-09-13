@@ -39,6 +39,12 @@ If the user explicitly asks for "a screenshot of the whole page including the ca
      </defs>
      ```
      If the SVG already contains a `<defs>` block, **merge** the `<style>` into it (don't add a second `<defs>`).
+   - **Retain class-based styles for class-styled diagrams (Issue #202 / #203)**:
+     Certain templates and examples (`loop`, `process`, `medallion`, `data-flow`, `dp-integration`, `dp-security-matrix`, `it-state`) style shapes and typography through CSS classes declared in the HTML document's `<style>` block (`.station`, `.ring`, `.node-name`, etc.). If extracting only `<svg>`, these elements lose styling and default to solid black.
+     When exporting such diagrams:
+     1. Copy the diagram's CSS rules and `:root` custom properties into the `<defs><style>` block alongside the `@import`.
+     2. Omit host page chrome (`body`, `.frame`, `h1`, `.eyebrow`).
+     3. For safe inlining in the same document, ensure `<pattern>` and `<marker>` IDs are prefixed with the diagram slug to prevent cross-figure ID collisions.
 4. Normalize colors for strict SVG 1.1 consumers. This design system's tokens are authored as `rgba(...)` (see `style-guide.md`) and render correctly wherever colors are read as CSS — browsers, Figma, Illustrator. PowerPoint's SVG importer does not: it treats `rgba(...)` and `transparent` as unrecognized and paints them **opaque black**, turning a barely-there tint into a solid block that swallows the label inside it. The transform is lossless (every replacement renders identically to the original in a browser), so apply it to the SVG string extracted in step 2, before writing the file:
 
    ```python

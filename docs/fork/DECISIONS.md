@@ -181,3 +181,23 @@ PR 在這裡不可能是在修「本 fork 才有的缺陷」——採用它等�
 - #175（繁體中文支援）、#187（Waterfall）、#188（Excalidraw）、#151（PPT 匯出）、#208（Cowork 描述上限）均已隨上述 PR 修復並合併。
 - 其餘 open issue 維持追蹤。
 
+## 2026-09-13：代碼審查缺陷修復、優質上游 PR 採納與標籤整頓（PR #210, #222, #212, Issue #202/#203）
+
+### 1. 代碼審查與程式碼品質修復
+- **`skills/diagram-design/scripts/drawio_extract.py`**：修復 `F821` 缺陷，補充 `from typing import NoReturn`，修正 `_fail` 函式的回傳型別註解。
+- **`scripts/fix-mojibake.py`**：修復 `F541` 缺陷，移除無佔位符的冗餘 `f-string` 前綴。
+- **`scripts/verify-doctor.py`**：修復 `F401` 缺陷，移除未使用的 `import os`。
+- **`tools/dev_check.ps1`**：擴大本機 fork gate 檢查範疇，將 `scripts/` 與 `skills/diagram-design/scripts/` 納入 `compileall` 與 `ruff (E9+F)` 檢查清單，確保後續腳本變更均受型別與語法安全保護。
+
+### 2. 優質上游修正提早採納（非新圖表型別，純語法解析/文件一致性修復）
+遵照 `FORK.md` 原則，本 fork 不 fork-ahead 引入尚未拍板的新圖表型別（如 PR #219），但針對無爭議的 parser bugfix 與文件編號一致性予以提前採用：
+- **採納 PR #210（修復 Issue #209）**：Mermaid 緊湊虛線箭頭標籤允許帶空格語法（`A-.label with space.->B`）。修改 `skills/diagram-design/scripts/mermaid_extract.py` 並於 `scripts/verify-mermaid-import.py` 增加迴歸驗證測試。
+- **採納 PR #222（修復 Issue #213）**：修復 `skills/diagram-design/assets/index.html` 藝廊標籤頁序號不連續問題（Waterfall 54 -> 20, Line 20 -> 21, ..., Excalidraw 55 -> 52）。並同步於 `scripts/verify-docs-sync.py` 增加連續性驗證器與 `scripts/test-verify-docs-sync.py` 單元測試。
+- **採納 PR #212（修復 Issue #211）**：移除 `README.md` 寫死的 "39 visual types" 舊計數，改為引用 `SKILL.md §3`；並將 `README.md` 納入 `scripts/verify-docs-sync.py` 的 `COUNT_SURFACES`，防止未來再度出現硬編碼過期數字。
+- **修復 Issue #202 / #203**：在 `skills/diagram-design/references/export.md` 中補充帶有 class-based 樣式（如 `.station`, `.ring`）與 `:root` 變數之圖表在獨立匯出 SVG 時的 CSS 內聯與命名空間避免碰撞指引，防止在 PPT/向量工具中呈現黑塊。
+
+### 3. Git 標籤衛生整頓（只保留最新 tag）
+- 檢查本機與遠端 `origin`（`SanHsien/diagram-design`）標籤，確認無舊版本殘留標籤。
+- 建立並推播當前最新產品版號標籤 `v2.6.22` 至 `origin`，確保遠端僅保留單一最新 tag。
+
+

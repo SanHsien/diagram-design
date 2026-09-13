@@ -33,10 +33,10 @@ function Invoke-PythonStep {
 }
 
 Invoke-PythonStep -Label "Compile fork Python" -Arguments @(
-    "-m", "compileall", "-q", "tools", "tests"
+    "-m", "compileall", "-q", "tools", "tests", "scripts", "skills\diagram-design\scripts"
 )
 Invoke-PythonStep -Label "Ruff (E9 + F)" -Arguments @(
-    "-m", "ruff", "check", "--select", "E9,F", "tools", "tests"
+    "-m", "ruff", "check", "--select", "E9,F", "tools", "tests", "scripts", "skills/diagram-design/scripts"
 )
 Invoke-PythonStep -Label "Pytest" -Arguments @("-m", "pytest", "tests", "-q")
 Invoke-PythonStep -Label "Check fork Markdown links" -Arguments @(

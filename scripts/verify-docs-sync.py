@@ -218,6 +218,19 @@ def check_gallery(errors: list[str]) -> None:
             )
         else:
             seen_eyebrows[num] = t
+    # Enforce that independent eyebrows form one contiguous, ascending
+    # sequence matching document order. Uniqueness alone missed a tab
+    # inserted with the next available number instead of one matching its
+    # position — the tab_eyebrows dict preserves document order since it is
+    # built by a single left-to-right regex pass.
+    independent_order = [t for t in tab_eyebrows if t not in tab_parents]
+    for position, t in enumerate(independent_order, start=1):
+        if int(tab_eyebrows[t]) != position:
+            errors.append(
+                f"gallery independent tab {t!r} has eyebrow {tab_eyebrows[t]!r} "
+                f"at document position {position}; independent eyebrows must "
+                "be contiguous, ascending, and match document order"
+            )
     # Enforce that each variant's eyebrow matches its declared parent's.
     for t, parent in tab_parents.items():
         if parent not in tab_eyebrows:
@@ -428,16 +441,23 @@ def check_factory_install_surface(errors: list[str], root: Path) -> None:
 #
 # Word-form numerals (`Twenty-eight visual types`) are out of scope; README and
 # the docstring say "numeral" so the gate does not claim more than it checks.
+# README carried one of those (`Thirty-nine visual types`); it is count-free now
+# but nothing here would catch it coming back in words.
+_COUNT_CONTEXT = r"visual|catalog|gallery|render(?:er|ing)?|example|shipped|static|variant"
+_COUNT_SENTENCE = rf"[^.!?\n]*\b(?:{_COUNT_CONTEXT})\b"
 HARDCODED_COUNT_RE = re.compile(
     r"one\s+of\s+(?:the\s+)?\d+\b"
     r"|\b\d+\s+(?:[\w-]+\s+){0,2}?(?:visual|diagram)[\s-]+types?\b"
-    r"|\b\d+\s+types?\s+of\s+(?:[\w-]+\s+){0,2}?diagrams?\b",
+    r"|\b\d+\s+types?\s+of\s+(?:[\w-]+\s+){0,2}?diagrams?\b"
+    rf"|(?={_COUNT_SENTENCE})[^.!?\n]*?\b\d+-type\b"
+    rf"|(?={_COUNT_SENTENCE})[^.!?\n]*?\ball\s+\d+\s+diagrams?\b",
     re.IGNORECASE,
 )
 COUNT_SURFACES = (
     Path("commands/import-drawio.md"),
     Path("commands/import-mermaid.md"),
     Path("commands/import-excalidraw.md"),
+    Path("README.md"),
 )
 
 

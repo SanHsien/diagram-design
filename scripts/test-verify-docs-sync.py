@@ -509,6 +509,78 @@ diagram-design/
                     f"a count unrelated to the taxonomy was rejected for {benign!r}: {errors}"
                 )
 
+        # README is the same surface by another route: it carries the count in
+        # prose a user reads before installing, and it went stale there — it
+        # said 39 while the selection table shipped 40 — because nothing checked
+        # it. It points at SKILL.md §3 instead, and the two phrasings the real
+        # file used are covered so the wording cannot come back.
+        readme_routed = (
+            "# Diagram Design\n\n"
+            "Every visual type ships in three static variants; see `SKILL.md` §3.\n"
+        )
+        readme.write_text(readme_routed, encoding="utf-8")
+        errors = []
+        verify.check_type_counts(errors, root)
+        if errors:
+            raise AssertionError(f"a count-free README failed: {errors}")
+
+        for stale in (
+            "39 editorial diagram types for Claude Code.\n",
+            "All 39 visual types ship in three static variants.\n",
+            "Open the gallery to see all 39 diagrams.\n",
+            "deterministic 39-type PNG catalog renderer\n",
+            "any of the 39 visual types\n",
+        ):
+            readme.write_text(readme_routed + stale, encoding="utf-8")
+            errors = []
+            verify.check_type_counts(errors, root)
+            if (
+                len(errors) != 1
+                or "README.md" not in errors[0]
+                or "hardcodes the visual-type count" not in errors[0]
+            ):
+                raise AssertionError(
+                    f"a hardcoded README count was not reported for {stale!r}: {errors}"
+                )
+
+        # README carries ordinary numbers that are not the taxonomy count, and
+        # the two added phrasings must not start rejecting them. The last four
+        # are the shapes those phrasings would overmatch without their
+        # single-digit floor: `2-type` and `all 3 diagrams` are ordinary prose
+        # in a repository that ships 40 types, and this gate blocks a pull
+        # request, so rejecting them is worse than missing a stale count. The
+        # two-digit cases prove the guard is contextual rather than relying on
+        # a numeral-length heuristic.
+        for benign in (
+            "Renders all 3 variants from one source.\n",
+            "The gallery lists 2 file types.\n",
+            "Allows 24 nodes per diagram.\n",
+            "Runs on Python 3.11 and 3.12.\n",
+            "A 2-type system is enough here.\n",
+            "A 10-type taxonomy is enough here.\n",
+            "See all 3 diagrams in the appendix.\n",
+            "See all 12 diagrams in the appendix.\n",
+            "The 4-type taxonomy of joins.\n",
+            "All 5 diagrams are inlined.\n",
+        ):
+            readme.write_text(readme_routed + benign, encoding="utf-8")
+            errors = []
+            verify.check_type_counts(errors, root)
+            if errors:
+                raise AssertionError(
+                    f"a README count unrelated to the taxonomy was rejected for {benign!r}: "
+                    f"{errors}"
+                )
+
+        # A missing README is named rather than skipped, the way a missing
+        # command is.
+        readme.unlink()
+        errors = []
+        verify.check_type_counts(errors, root)
+        if errors != ["type-count surface is missing: README.md"]:
+            raise AssertionError(f"a missing README surface was not reported: {errors}")
+        readme.write_text(readme_routed, encoding="utf-8")
+
         # Restore the routed wording first: leaving a stale count behind lets
         # this case pass on the wrong error and never names the missing surface.
         mermaid.write_text(routed, encoding="utf-8")
@@ -637,25 +709,50 @@ diagram-design/
         ridge_trio = ["example-ridgeline.html", "example-ridgeline-dark.html", "example-ridgeline-full.html"]
 
         # 7. Variant sharing its parent's eyebrow is allowed (no error).
-        html = make_gallery_html(make_tab("line", "20"), make_tab("ridgeline", "20", parent="line"))
+        html = make_gallery_html(make_tab("line", "01"), make_tab("ridgeline", "01", parent="line"))
         errs = run_gallery_check(html, line_trio + ridge_trio)
         if any("eyebrow" in e or "parent" in e for e in errs):
             raise AssertionError(f"valid parent/variant reuse raised error: {errs}")
         print("OK gallery: variant sharing parent eyebrow is allowed")
 
         # 8. Variant with wrong eyebrow number is caught.
-        html = make_gallery_html(make_tab("line", "20"), make_tab("ridgeline", "99", parent="line"))
+        html = make_gallery_html(make_tab("line", "01"), make_tab("ridgeline", "99", parent="line"))
         errs = run_gallery_check(html, line_trio + ridge_trio)
         if not any("ridgeline" in e and "eyebrow" in e for e in errs):
             raise AssertionError(f"variant with wrong eyebrow not caught: {errs}")
         print("OK gallery: variant with wrong eyebrow number caught")
 
         # 9. Variant declaring a missing parent is caught.
-        html = make_gallery_html(make_tab("ridgeline", "20", parent="line"))
+        html = make_gallery_html(make_tab("ridgeline", "01", parent="line"))
         errs = run_gallery_check(html, ridge_trio)
         if not any("ridgeline" in e and "line" in e for e in errs):
             raise AssertionError(f"variant with missing parent not caught: {errs}")
         print("OK gallery: variant with missing parent caught")
+
+        # 10. An independent tab inserted with the next available number
+        # instead of one matching its document position is caught (#213: a
+        # tab like Waterfall landing at eyebrow 54 between 19 and 20).
+        html = make_gallery_html(make_tab("x", "01"), make_tab("y", "54"))
+        errs = run_gallery_check(html, full_trio + ["example-y.html", "example-y-dark.html", "example-y-full.html"])
+        if not any("'y'" in e and "position 2" in e for e in errs):
+            raise AssertionError(f"out-of-sequence eyebrow not caught: {errs}")
+        print("OK gallery: out-of-sequence eyebrow number caught")
+
+        # 11. A contiguous, ascending sequence — including a variant sharing
+        # its parent's number mid-sequence — produces no ordering error.
+        html = make_gallery_html(
+            make_tab("x", "01"),
+            make_tab("line", "02"),
+            make_tab("ridgeline", "02", parent="line"),
+            make_tab("z", "03"),
+        )
+        errs = run_gallery_check(
+            html,
+            full_trio + line_trio + ridge_trio + ["example-z.html", "example-z-dark.html", "example-z-full.html"],
+        )
+        if any("contiguous" in e for e in errs):
+            raise AssertionError(f"valid ascending sequence raised false positive: {errs}")
+        print("OK gallery: contiguous ascending sequence with a mid-sequence variant passes")
 
     with tempfile.TemporaryDirectory(prefix="verify-docs-sync-assets-") as asset_tmp:
         tmp_skill_dir = Path(asset_tmp)
