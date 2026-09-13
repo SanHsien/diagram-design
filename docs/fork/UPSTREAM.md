@@ -1,0 +1,91 @@
+# 上游維護
+
+## Remote
+
+- Fork：`origin` → `https://github.com/SanHsien/diagram-design.git`
+- 原作者：`upstream` → `https://github.com/cathrynlavery/diagram-design.git`
+- 追蹤分支：`main`
+
+## 檢查新提交
+
+```powershell
+git fetch upstream main
+python tools\check_upstream_updates.py --strict
+```
+
+工具以 `tools/upstream_baseline.json` 的 `reviewed_through` 為起點，列出所有未審查提交。
+有新提交或檢查失敗時，`--strict` 回傳非零；排程 workflow 也會因此明確失敗。
+
+## 審查清冊
+
+每次只做一次批次審查：
+
+1. 讀 commit 主旨與變更檔案（open PR 必須讀 diff，禁止只憑標題結案）。
+2. 判斷是否與 fork overlay、Windows gate、`README.md` 架構樹或測試衝突。
+3. 可直接同步的提交用 merge；只需要部分修正時 cherry-pick 或最小重做。
+4. 跑 `pwsh -NoProfile -File tools\dev_check.ps1`。產品檔有動再跑對應的 `scripts/verify-*.py`／`scripts/lint-skin.py`。
+5. 在 `docs/fork/DECISIONS.md` 記錄採用／略過理由（須引用具體檔案與衝突點）。
+6. 驗證完成後才把 baseline 推進到已審查的完整 40 字元 SHA。
+
+Baseline 代表「已審查」，不代表「全部已合併」。
+
+**四個面向都要看，不是只看 commit**：commit、open PR、open issue、上游分支。
+
+README 衝突的解法：保留頂部 overlay，把上游新產品說明留在英文 `README.md`。不要把公開入口改成繁中主檔。來源與授權 credit 留在 README 與 `NOTICE.md`。
+
+`pages.yml` 與 `auto-bump.yml` 已加上 `github.repository == 'cathrynlavery/diagram-design'`。merge 上游時若這兩支 workflow 被重寫，必須把閘門加回去。`ci.yml` 採用上游 ADR 0009 版本規則（main `--current-only`，PR `--require-no-bump`，天然支援 overlay 提交）。本 fork 的 skill 驗證走上游 `ci.yml`（在本 fork 跑）加上 `tools/dev_check.ps1`。
+
+## 2026-08-28：fork 起點
+
+本 fork 自上游 `main` `ac490fd1ac4b4014100f93e729cb4ad198700bd4`
+（`fix(gallery): deduplicate slopegraph eyebrow number and strengthen sync verifier (#136)`）建立。此 SHA 設為第一個 `reviewed_through`。
+之後的上游 commit 才需要進入審查清冊。
+
+建置當下 GitHub 上已有 open PR（最高編號 158）與 open issue。**本輪沒有逐筆讀那些 diff**，所以 baseline 不寫 PR／issue watermark。下次上游審查從現有 open items 開始，不要假設「編號比 158 小的都已看過」。
+
+
+## 2026-08-29：PR 與 issue 面向真的接上排程（水位仍刻意留空）
+
+在此之前，本檔寫著「四個面向都要看」，但 `tools/check_upstream_updates.py` 只讀
+`reviewed_through`——PR 與 issue 沒有任何程式在看，每週的排程報告卻是綠的。那不是「查過沒發現」，
+是根本沒查。
+
+已補上（比照 `SanHsien/harness-guard`）：
+
+- 用 `gh <pr|issue> list --state all` 列出水位以上的項目。`--state all` 是刻意的：**開了又關、
+  沒有合併**的 PR 永遠不會出現在 commit 軸上，而那正是「上游拒收、但可能對本 fork 有價值」的一類。
+- `gh` 無法列舉時回 `None` 而不是 `[]`，報告寫「Not checked」並 **fail closed**（exit 2）。
+  「沒查到」和「沒有」在綠色報告裡長得一樣，只有一個是真的。
+- `upstream-check.yml` 補 `GH_TOKEN: ${{ github.token }}`。少了它，`gh` 在 Actions 裡沒有憑證，
+  紅燈的意思會變成「檢查器壞了」而不是「上游有東西」。
+
+**`reviewed_pr_through` 與 `reviewed_issue_through` 仍然不寫。** 那個 triage 真的還沒做；補上數字
+等於把未分類的待辦洗成已審查，正是這份紀錄要防的事。缺欄位＝水位 0，所以排程的第一次執行會把整份
+待辦清單列進 step summary——**那份清單就是後續 triage 的工作單，這支檢查會是紅的直到做完為止。**
+
+2026-08-29 實查：PR 116 筆（最高 `#160`）、issue 40 筆（最高 `#161`）。
+
+
+## 2026-08-30：初次 triage 完成，水位推進到 `b52a33bfeef85d43995193ee52c13b485154b7b4`
+
+上一節說「本輪沒有逐筆讀那些 diff，所以 baseline 不寫 PR／issue watermark」。**本輪做完了。**
+
+- commit：合併上游唯一的新 commit `b52a33b`（#160，44 檔 +6522）。衝突只有 `ci.yml` 一處，
+  兩邊各加一個不同的 step，都保留。實查 `pages.yml` 的官方-repo guard、README 頂部 overlay、
+  `ci.yml` 的 plugin 版號 skip、以及本 fork 對 `scripts/` 的三處 `</script [^>]*>` 強化全部保住。
+- PR：**#163**（117 筆看過分類）
+- issue：**#162**
+
+判準與逐項理由見 [`DECISIONS.md`](DECISIONS.md) 2026-08-30 條目。核心是：本 fork 是
+overlay-only、產品原始碼與上游逐位元組相同，所以被上游拒收的 PR 在這裡不可能是在修「本 fork
+才有的缺陷」；唯一該例外檢查的 Windows-first／CJK 那一類實查只有 `#76`／`#86` 兩筆，
+而合併之後它們的內容都已經在 `ALLOWED_FONTS` 裡。
+
+
+## 2026-09-13：第二輪 triage 完成，水位推進到 `8d8b2993ee2256ee7dfc0eeb3b5713aba3b60792`
+
+- commit：合併上游 27 個 commit 至 `8d8b299`（版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）與 ADR 0009。
+- PR 水位：**#222**（新增 34 筆經逐筆審查）
+- issue 水位：**#220**（新增 25 筆經逐筆審查）
+
+判準與逐項理由見 [`DECISIONS.md`](DECISIONS.md) 2026-09-13 條目。
