@@ -43,32 +43,21 @@ jobs:
       - name: Test plugin package tooling
         run: python3 scripts/test-plugin-package.py
 
-      # Fork overlay: overlay-only commits must not bump product plugin
-      # versions (that would diverge from upstream). Restore this skip if
-      # an upstream merge rewrites the job.
-      - name: Detect packaged plugin path changes
-        id: plugin_paths
-        env:
-          BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
-        run: |
-          if [ -z "$BASE_REF" ] || [ "$BASE_REF" = "0000000000000000000000000000000000000000" ]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          if git diff --name-only "$BASE_REF" HEAD | grep -Eq '^(skills/|\.claude-plugin/|\.codex-plugin/|\.factory-plugin/|\.agents/|commands/|prompts/)'; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Verify maintainer policy tracks package and CI truth
         run: python3 scripts/test-maintainer-policy.py
 
-      - name: Require a synchronized plugin version bump
-        if: steps.plugin_paths.outputs.changed == 'true'
+      # Versions are bumped on main by the Auto Version Bump workflow after
+      # each merge (ADR 0009); pull requests must leave them untouched.
+      - name: Forbid manifest version changes in pull requests
         env:
-          BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
-        run: python3 scripts/verify-plugin-package.py "$BASE_REF"
+          BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            python3 scripts/verify-plugin-package.py --require-no-bump "$BASE_REF"
+          else
+            python3 scripts/verify-plugin-package.py --current-only
+          fi
 
       - name: Validate Claude marketplace package without warnings
         run: npx --yes @anthropic-ai/claude-code@2.1.229 plugin validate . --strict
@@ -199,6 +188,13 @@ jobs:
         id: mermaid
         run: python scripts/verify-mermaid-import.py
 
+      - name: Verify Excalidraw import script
+        if: always()
+        id: excalidraw
+        run: |
+          python scripts/verify-excalidraw-import.py
+          python scripts/test-verify-excalidraw-import.py
+
       - name: Verify optional motion contract
         if: always()
         id: motion
@@ -227,6 +223,22 @@ jobs:
         id: screenshots
         run: python scripts/verify-screenshot-freshness.py
 
+      - name: Install Pillow for README thumbnail verification
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        env:
+          PILLOW_VERSION: "12.1.1"
+        shell: bash
+        run: |
+          pip install "Pillow==${PILLOW_VERSION}"
+          python -c "import PIL; print('Pillow', PIL.__version__)"
+
+      - name: Verify README thumbnails
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
+        id: readme_thumbs
+        run: |
+          python scripts/test-build-readme-thumbs.py
+          python scripts/build-readme-thumbs.py --check
+
       - name: Verify packaged self-check
         if: always()
         id: self_check
@@ -241,6 +253,16 @@ jobs:
         if: always()
         id: geometry_tests
         run: python scripts/test-verify-geometry.py
+
+      - name: Verify block registry
+        if: always()
+        id: block_registry
+        run: python scripts/verify-block-registry.py --all
+
+      - name: Verify block registry checker
+        if: always()
+        id: block_registry_tests
+        run: python scripts/test-verify-block-registry.py
 
       - name: Verify treemap area fidelity and label fit
         if: always()
@@ -280,6 +302,16 @@ jobs:
         if: always()
         id: sankey_tests
         run: python scripts/test-verify-sankey.py
+
+      - name: Verify waterfall running-total conservation
+        if: always()
+        id: waterfall
+        run: python scripts/verify-waterfall.py --all
+
+      - name: Verify waterfall checker
+        if: always()
+        id: waterfall_tests
+        run: python scripts/test-verify-waterfall.py
 
       - name: Verify ridgeline shared amplitude
         if: always()
@@ -393,14 +425,18 @@ jobs:
           echo "| Sequence-OAuth Verifier Tests | ${{ steps.oauth_tests.outcome == 'success' && '✅ Passed' || (steps.oauth_tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Draw.io Import Extractor | ${{ steps.drawio.outcome == 'success' && '✅ Passed' || (steps.drawio.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Mermaid Import Extractor | ${{ steps.mermaid.outcome == 'success' && '✅ Passed' || (steps.mermaid.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Excalidraw Import Extractor | ${{ steps.excalidraw.outcome == 'success' && '✅ Passed' || (steps.excalidraw.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Optional Motion Contract | ${{ steps.motion.outcome == 'success' && '✅ Passed' || (steps.motion.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Doctor Diagnostics Contract | ${{ steps.doctor.outcome == 'success' && '✅ Passed' || (steps.doctor.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Doctor Diagnostics Tests | ${{ steps.doctor_tests.outcome == 'success' && '✅ Passed' || (steps.doctor_tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Docs & Routing Sync | ${{ steps.docs_sync.outcome == 'success' && '✅ Passed' || (steps.docs_sync.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Canonical Screenshot Freshness | ${{ steps.screenshots.outcome == 'success' && '✅ Passed' || (steps.screenshots.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| README Thumbnail Freshness | ${{ steps.readme_thumbs.outcome == 'success' && '✅ Passed' || (steps.readme_thumbs.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Packaged Self-Check | ${{ steps.self_check.outcome == 'success' && '✅ Passed' || (steps.self_check.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Label Geometry | ${{ steps.geometry.outcome == 'success' && '✅ Passed' || (steps.geometry.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Label Geometry Checker | ${{ steps.geometry_tests.outcome == 'success' && '✅ Passed' || (steps.geometry_tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Block Registry | ${{ steps.block_registry.outcome == 'success' && '✅ Passed' || (steps.block_registry.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Block Registry Checker | ${{ steps.block_registry_tests.outcome == 'success' && '✅ Passed' || (steps.block_registry_tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Treemap Area & Label Fit | ${{ steps.treemap.outcome == 'success' && '✅ Passed' || (steps.treemap.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Treemap Checker | ${{ steps.treemap_tests.outcome == 'success' && '✅ Passed' || (steps.treemap_tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Dumbbell Domain & Contrast | ${{ steps.dumbbell.outcome == 'success' && '✅ Passed' || (steps.dumbbell.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
@@ -409,6 +445,8 @@ jobs:
           echo "| Slopegraph Checker | ${{ steps.slopegraph_tests.outcome == 'success' && '✅ Passed' || (steps.slopegraph_tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Sankey Flow Conservation | ${{ steps.sankey.outcome == 'success' && '✅ Passed' || (steps.sankey.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Sankey Checker | ${{ steps.sankey_tests.outcome == 'success' && '✅ Passed' || (steps.sankey_tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Waterfall Running-Total Conservation | ${{ steps.waterfall.outcome == 'success' && '✅ Passed' || (steps.waterfall.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Waterfall Checker | ${{ steps.waterfall_tests.outcome == 'success' && '✅ Passed' || (steps.waterfall_tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Ridgeline Shared Amplitude | ${{ steps.ridgeline.outcome == 'success' && '✅ Passed' || (steps.ridgeline.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Ridgeline Checker | ${{ steps.ridgeline_tests.outcome == 'success' && '✅ Passed' || (steps.ridgeline_tests.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Bubble Position & Area | ${{ steps.bubble.outcome == 'success' && '✅ Passed' || (steps.bubble.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY

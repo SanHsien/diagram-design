@@ -1,10 +1,10 @@
 {
   "repo": "https://github.com/cathrynlavery/diagram-design.git",
   "branch": "main",
-  "reviewed_through": "b52a33bfeef85d43995193ee52c13b485154b7b4",
-  "reviewed_date": "2026-08-30",
+  "reviewed_through": "8d8b2993ee2256ee7dfc0eeb3b5713aba3b60792",
+  "reviewed_date": "2026-09-13",
   "decision_log": "docs/fork/DECISIONS.md",
-  "notes": "Fork starting point was ac490fd. 2026-08-30：初次 triage 完成。合併上游唯一新 commit b52a33b（#160，44 檔 +6522），衝突只有 ci.yml 一處且兩個 step 都保留；實查 pages.yml guard、README overlay、plugin 版號 skip 與本 fork 對 scripts/ 的三處強化全部保住。PR 水位 → 163、issue → 162。117 個 PR：65 MERGED 已在本 fork（產品碼與上游逐位元組相同）、19 OPEN 不 fork-ahead、33 CLOSED 未合併逐筆看過標題，只有 #76／#86 落在 Windows-first／CJK 這個唯一該例外的範圍，而兩筆的內容合併後都已在 ALLOWED_FONTS 裡。逐項理由與觸發條件見 docs/fork/DECISIONS.md 同日條目。",
-  "reviewed_pr_through": 163,
-  "reviewed_issue_through": 162
+  "notes": "2026-09-13：第二輪 triage 與同步完成。合併上游至 8d8b299（#216，版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）以及 ADR 0009 自動版號架構。ci.yml 對齊 upstream ADR 0009，auto-bump.yml 加上 official guard。修復 check_upstream_updates.py 在 Windows CP950 下的 Unicode 編碼崩潰。PR 水位 → 222、issue 水位 → 220。",
+  "reviewed_pr_through": 222,
+  "reviewed_issue_through": 220
 }

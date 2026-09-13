@@ -23,7 +23,7 @@ UNGATED_WORKFLOWS = (
     "codeql.yml",
     "dependency-freshness.yml",
 )
-GATED_WORKFLOWS = ("pages.yml",)
+GATED_WORKFLOWS = ("pages.yml", "auto-bump.yml")
 
 
 def test_baseline_file_is_valid_and_complete() -> None:
@@ -191,11 +191,11 @@ def test_script_close_regex_matches_html_parser_junk() -> None:
     assert r"</script\s*>" not in a11y
 
 
-def test_plugin_version_gate_skips_overlay_only_commits() -> None:
+def test_plugin_version_gate_forbids_manifest_bump_in_pr() -> None:
     ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-    assert "Detect packaged plugin path changes" in ci
-    assert "steps.plugin_paths.outputs.changed == 'true'" in ci
-    assert r"^(skills/|\.claude-plugin/|\.codex-plugin/|\.factory-plugin/|\.agents/|commands/|prompts/)" in ci
+    assert "Forbid manifest version changes in pull requests" in ci
+    assert "--require-no-bump" in ci
+    assert "--current-only" in ci
 
 
 def test_gitattributes_does_not_mark_product_html_binary() -> None:
@@ -217,9 +217,12 @@ def test_ungated_workflows_are_not_official_repo_only() -> None:
         assert official_guard not in text, name
 
 
-def test_pages_workflow_is_official_repo_only() -> None:
-    text = (ROOT / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
-    assert f"github.repository == '{OFFICIAL_REPO}'" in text
+def test_gated_workflows_are_official_repo_only() -> None:
+    official_guard = f"github.repository == '{OFFICIAL_REPO}'"
+    workflows = ROOT / ".github" / "workflows"
+    for name in GATED_WORKFLOWS:
+        text = (workflows / name).read_text(encoding="utf-8")
+        assert official_guard in text, name
 
 
 def test_security_and_contributing_name_the_fork() -> None:

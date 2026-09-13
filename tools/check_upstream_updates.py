@@ -16,6 +16,7 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -275,6 +276,12 @@ def render_markdown(
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", default="upstream-review-report.md")
     parser.add_argument("--repo-dir", type=Path, default=REPO_ROOT)

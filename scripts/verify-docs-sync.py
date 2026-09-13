@@ -11,10 +11,9 @@ Ten drift classes, each of which has shipped before:
 3. Every concrete file named in README.md's architecture tree must exist.
 4. Every relative references/*.md link in SKILL.md must resolve.
 5. Claude and Pi command/prompt surfaces must route to the matching reference.
-6. The plugin manifests repeat the SKILL.md description verbatim. They are the
-   text a user reads *before installing*, so by ADR 0004's own argument they
-   need every type's lexical hook too - and nothing else notices when they
-   drift, because they are four separate copies of one sentence.
+6. Plugin descriptions must fit Cowork's installation limit while retaining
+   every type's lexical hook. The skill and Codex longDescription keep the
+   fuller feature summary without inheriting the short-description limit.
 7. Factory Droid's README install commands and native manifest path must agree
    with the package metadata instead of becoming a second hand-maintained API.
 8. Every support path a strict skill bundler can extract from SKILL.md must be
@@ -23,6 +22,7 @@ Ten drift classes, each of which has shipped before:
    hardcoding a count that becomes stale when a type is added.
 10. The High-Level reproducibility checklist must agree with its canvas formula
    and retain sequential numbering.
+11. The canonical dark Line example must keep the dark-skin tokens and canvas.
 """
 
 from __future__ import annotations
@@ -40,8 +40,11 @@ ASSET_DIR = ROOT / "skills/diagram-design/assets"
 README = ROOT / "README.md"
 HIGH_LEVEL_REFERENCE = ROOT / "skills/diagram-design/references/type-high-level.md"
 ONBOARDING_REFERENCE = ROOT / "skills/diagram-design/references/onboarding.md"
+LINE_DARK_EXAMPLE = ROOT / "skills/diagram-design/assets/example-line-dark.html"
 VARIANTS = ("", "-dark", "-full")
-VISUAL_TYPE_COUNT = 39
+VISUAL_TYPE_COUNT = 40
+AGENT_SKILLS_DESCRIPTION_MAX = 1024
+PLUGIN_DESCRIPTION_MAX = 500
 # Types whose selection-table name differs from its description vocabulary.
 DESCRIPTION_ALIASES = {
     "bar chart": "bar",
@@ -52,10 +55,12 @@ ROUTING_SURFACES = {
     Path("commands/export-diagram.md"): "references/export.md",
     Path("commands/import-drawio.md"): "references/import-drawio.md",
     Path("commands/import-mermaid.md"): "references/import-mermaid.md",
+    Path("commands/import-excalidraw.md"): "references/import-excalidraw.md",
     Path("commands/profile.md"): "references/profiles.md",
     Path("commands/doctor.md"): "references/doctor.md",
     Path("prompts/export-diagram.md"): "references/export.md",
     Path("prompts/import-mermaid.md"): "references/import-mermaid.md",
+    Path("prompts/import-excalidraw.md"): "references/import-excalidraw.md",
     Path("prompts/profile.md"): "references/profiles.md",
     Path("prompts/doctor.md"): "references/doctor.md",
 }
@@ -77,6 +82,7 @@ REQUIRED_PACKAGED_RUNTIME_FILES = frozenset(
         "scripts/self_check.py",
         "scripts/drawio_extract.py",
         "scripts/mermaid_extract.py",
+        "scripts/excalidraw_extract.py",
         "assets/template.html",
         "assets/template-dark.html",
         "assets/template-full.html",
@@ -108,6 +114,20 @@ def check_onboarding_trust_boundary(errors: list[str], markdown: str) -> None:
         )
 
 
+def check_line_dark_skin(errors: list[str], source: str) -> None:
+    """The dark Line example must not silently drift back to the light skin."""
+    required = (
+        "--color-paper:#2d3142",
+        "--color-ink:#f5f5f5",
+        "--color-muted:#bfc0c0",
+        "--color-accent:#f08a59",
+        '<rect width="100%" height="100%" fill="#2d3142"',
+    )
+    for token in required:
+        if token not in source:
+            errors.append(f"example-line-dark.html lost canonical dark-skin token {token!r}")
+
+
 def frontmatter_description(markdown: str) -> str:
     parts = markdown.split("---")
     if len(parts) < 3:
@@ -125,8 +145,18 @@ def selection_table_types(markdown: str) -> list[str]:
     return [name.strip() for name in names]
 
 
+def check_description_length(errors: list[str], markdown: str) -> None:
+    description = frontmatter_description(markdown)
+    if len(description) > AGENT_SKILLS_DESCRIPTION_MAX:
+        errors.append(
+            "SKILL.md frontmatter description exceeds the Agent Skills limit "
+            f"({len(description)} > {AGENT_SKILLS_DESCRIPTION_MAX} characters)"
+        )
+
+
 def check_description(errors: list[str]) -> None:
     markdown = SKILL.read_text(encoding="utf-8")
+    check_description_length(errors, markdown)
     description = normalized(frontmatter_description(markdown))
     if not description:
         errors.append("SKILL.md frontmatter description is missing")
@@ -259,6 +289,28 @@ def check_skill_reference_links(
             errors.append(f"SKILL.md links to missing reference {target!r}")
 
 
+def check_reference_asset_links(
+    errors: list[str], skill_directory: Path
+) -> None:
+    """Require every asset cited across skill documentation to exist on disk."""
+    asset_dir = skill_directory / "assets"
+    ref_dir = skill_directory / "references"
+    md_paths = [skill_directory / "SKILL.md", *sorted(ref_dir.glob("*.md"))]
+    asset_pattern = re.compile(r"assets/([A-Za-z0-9_.-]+\.html)")
+
+    for path in md_paths:
+        if not path.is_file():
+            continue
+        content = path.read_text(encoding="utf-8")
+        for match in asset_pattern.finditer(content):
+            asset_name = match.group(1)
+            target = asset_dir / asset_name
+            if not target.is_file():
+                errors.append(
+                    f"{path.name} cites missing asset 'assets/{asset_name}'"
+                )
+
+
 def scanner_visible_support_references(markdown: str) -> list[str]:
     """Return the local support paths a strict skill bundler will request."""
     normalized_markdown = markdown.replace("\\", "/")
@@ -385,6 +437,7 @@ HARDCODED_COUNT_RE = re.compile(
 COUNT_SURFACES = (
     Path("commands/import-drawio.md"),
     Path("commands/import-mermaid.md"),
+    Path("commands/import-excalidraw.md"),
 )
 
 
@@ -496,6 +549,11 @@ def check_manifest_descriptions(errors: list[str], root: Path) -> None:
             if value is None:
                 errors.append(f"{relative.as_posix()} has no {key!r}")
                 continue
+            if key == "description" and len(value) > PLUGIN_DESCRIPTION_MAX:
+                errors.append(
+                    f"{relative.as_posix()} description exceeds the Cowork limit "
+                    f"({len(value)} > {PLUGIN_DESCRIPTION_MAX} characters)"
+                )
             text = normalized(value)
             for name in types:
                 hook = DESCRIPTION_ALIASES.get(normalized(name), normalized(name))
@@ -505,6 +563,53 @@ def check_manifest_descriptions(errors: list[str], root: Path) -> None:
                         f"type {name!r} (expected {hook!r}) — it must name every "
                         f"type the SKILL.md description names"
                     )
+
+
+def font_families(url: str) -> set[str]:
+    """The `family=` parameters a Google Fonts css2 URL actually requests."""
+    return {
+        part.split(":", 1)[0]
+        for part in url.replace("&amp;", "&").split("&")
+        if part.startswith("family=")
+    }
+
+
+def check_export_font_parity(errors: list[str], root: Path) -> None:
+    """The exported SVG must request every face the shipped HTML link does.
+
+    The two strings live in different files and drifted apart once already: the
+    CJK faces reached assets/template.html but never the @import in export.md,
+    so a Korean or Chinese diagram exported to .svg silently lost its type. That
+    failure only shows up on a machine other than the author's, which is exactly
+    the case the faces are in the link to prevent.
+    """
+    template = root / "skills/diagram-design/assets/template.html"
+    export = root / "skills/diagram-design/references/export.md"
+    for path in (template, export):
+        if not path.is_file():
+            errors.append(f"font-parity surface is missing: {path.name}")
+            return
+
+    link = re.search(r'href="([^"]*fonts\.googleapis\.com[^"]*)"',
+                     template.read_text(encoding="utf-8"))
+    imported = re.search(r"@import url\('([^']+)'\)",
+                         export.read_text(encoding="utf-8"))
+    if not link or not imported:
+        errors.append(
+            "could not locate the font link in assets/template.html or the "
+            "@import in references/export.md"
+        )
+        return
+
+    missing = sorted(font_families(link.group(1)) - font_families(imported.group(1)))
+    if missing:
+        names = ", ".join(name.removeprefix("family=").replace("+", " ")
+                          for name in missing)
+        errors.append(
+            f"references/export.md @import omits {names}, which "
+            f"assets/template.html requests; an exported .svg would resolve "
+            f"those scripts through whatever font the viewer happens to have"
+        )
 
 
 def main() -> int:
@@ -519,6 +624,7 @@ def main() -> int:
         SKILL.read_text(encoding="utf-8"),
         SKILL.parent,
     )
+    check_reference_asset_links(errors, SKILL.parent)
     check_packaged_support_references(
         errors,
         SKILL.read_text(encoding="utf-8"),
@@ -529,7 +635,9 @@ def main() -> int:
     check_onboarding_trust_boundary(
         errors, ONBOARDING_REFERENCE.read_text(encoding="utf-8")
     )
+    check_line_dark_skin(errors, LINE_DARK_EXAMPLE.read_text(encoding="utf-8"))
     check_routing_surfaces(errors, ROOT)
+    check_export_font_parity(errors, ROOT)
     if errors:
         print("FAIL docs sync")
         for error in errors:
@@ -537,9 +645,10 @@ def main() -> int:
         return 1
     print(
         "OK docs sync: description hooks, gallery reachability, README tree, "
-        "reference links, packaged support files, routing surfaces, manifest descriptions, "
-        "Factory install contract, type-count routing, High-Level invariants, "
-        "onboarding trust boundary"
+        "reference links, asset citations, packaged support files, routing surfaces, "
+        "manifest descriptions, Factory install contract, type-count routing, "
+        "High-Level invariants, onboarding trust boundary, Line dark-skin contract, "
+        "export font parity"
     )
     return 0
 

@@ -33,7 +33,7 @@ Baseline 代表「已審查」，不代表「全部已合併」。
 
 README 衝突的解法：保留頂部 overlay，把上游新產品說明留在英文 `README.md`。不要把公開入口改成繁中主檔。來源與授權 credit 留在 README 與 `NOTICE.md`。
 
-`pages.yml` 已加上 `github.repository == 'cathrynlavery/diagram-design'`。merge 上游時若這支 workflow 被重寫，必須把閘門加回去。`ci.yml` 的 plugin 版號閘門有 overlay skip（只在產品 plugin 路徑變更時跑）；merge 上游時若被蓋掉，必須加回去。本 fork 的 skill 驗證走上游 `ci.yml`（在本 fork 跑）加上 `tools/dev_check.ps1`。
+`pages.yml` 與 `auto-bump.yml` 已加上 `github.repository == 'cathrynlavery/diagram-design'`。merge 上游時若這兩支 workflow 被重寫，必須把閘門加回去。`ci.yml` 採用上游 ADR 0009 版本規則（main `--current-only`，PR `--require-no-bump`，天然支援 overlay 提交）。本 fork 的 skill 驗證走上游 `ci.yml`（在本 fork 跑）加上 `tools/dev_check.ps1`。
 
 ## 2026-08-28：fork 起點
 
@@ -72,7 +72,7 @@ README 衝突的解法：保留頂部 overlay，把上游新產品說明留在�
 
 - commit：合併上游唯一的新 commit `b52a33b`（#160，44 檔 +6522）。衝突只有 `ci.yml` 一處，
   兩邊各加一個不同的 step，都保留。實查 `pages.yml` 的官方-repo guard、README 頂部 overlay、
-  `ci.yml` 的 plugin 版號 skip、以及本 fork 對 `scripts/` 的三處 `</script[^>]*>` 強化全部保住。
+  `ci.yml` 的 plugin 版號 skip、以及本 fork 對 `scripts/` 的三處 `</script [^>]*>` 強化全部保住。
 - PR：**#163**（117 筆看過分類）
 - issue：**#162**
 
@@ -80,3 +80,12 @@ README 衝突的解法：保留頂部 overlay，把上游新產品說明留在�
 overlay-only、產品原始碼與上游逐位元組相同，所以被上游拒收的 PR 在這裡不可能是在修「本 fork
 才有的缺陷」；唯一該例外檢查的 Windows-first／CJK 那一類實查只有 `#76`／`#86` 兩筆，
 而合併之後它們的內容都已經在 `ALLOWED_FONTS` 裡。
+
+
+## 2026-09-13：第二輪 triage 完成，水位推進到 `8d8b2993ee2256ee7dfc0eeb3b5713aba3b60792`
+
+- commit：合併上游 27 個 commit 至 `8d8b299`（版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）與 ADR 0009。
+- PR 水位：**#222**（新增 34 筆經逐筆審查）
+- issue 水位：**#220**（新增 25 筆經逐筆審查）
+
+判準與逐項理由見 [`DECISIONS.md`](DECISIONS.md) 2026-09-13 條目。

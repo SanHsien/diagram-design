@@ -146,3 +146,38 @@ PR 在這裡不可能是在修「本 fork 才有的缺陷」——採用它等�
 上游 issue 是產品的功能請求與缺陷回報（新圖表型別、palette 對比、PowerPoint SVG 匯出…）。
 與 PR 同理：本 fork 產品碼與上游相同，這些缺陷若成立是**上游產品的缺陷**，修正會經由 commit 軸
 抵達。本 fork 沒有可獨立引用的內容。
+
+## 2026-09-13：上游第二輪 triage 與同步（合併 `8d8b299`，ADR 0009 落地，繁中與 Waterfall/Excalidraw 導入）
+
+### commit 軸：合併上游 27 個 commit 至 `8d8b299`（版本 2.6.22）
+
+1. **重大功能更新**：
+   - **繁體中文支援**（`#186` / `#196`）：正式引入 Noto Sans TC / Noto Serif TC，新增繁體中文標籤規則與 SVG 匯出字型 `@import` 對齊。
+   - **Waterfall 瀑布圖**（`#191`）：新增第 40 種核心視覺圖表（含 dark/full 變體、驗證器與 ADR 0011）。
+   - **Excalidraw 匯入**（`#192`）：支援 Excalidraw 檔案解析並以編輯級樣式重繪。
+   - **區塊分解語意模式**（`#169`）：新增 Traceable block decomposition 模式與 ADR 0010。
+   - **PowerPoint SVG 匯出相容性**（`#151`）：normalize rgba()/transparent 避免匯入 PowerPoint 時黑色塊問題。
+   - **強韌性優化**：修復 doctor（#201）、self-check（#205）與 plugin 描述長度（#216）。
+
+2. **版本發布機制變革（ADR 0009）與 fork overlay 調整**：
+   - 上游將版本 bump 機制由原本「PR 必須自帶版號更新」轉為「PR 內嚴格禁止更動版號（`--require-no-bump`），merge 到 main 後由 `auto-bump.yml` 自動遞增並發布」。
+   - **fork overlay 對齊**：
+     - 在 `.github/workflows/ci.yml` 採用上游的新版號檢查機制（main 僅檢查 `--current-only` 一致性，PR 檢查 `--require-no-bump`），完全自然相容本 fork 的 overlay 提交。
+     - 在 `.github/workflows/auto-bump.yml` 加入 `if: github.repository == 'cathrynlavery/diagram-design'` 官方 repo 專屬 guard，並在 `tests/test_fork_overlay.py` 中納入 `GATED_WORKFLOWS` 門禁保護，避免 fork 嘗試進行自動發布。
+
+3. **Windows 11 原生環境缺陷修復**：
+   - 修復 `tools/check_upstream_updates.py` 在 Windows 原生控制台（CP950 編碼）下遇泰文或特殊字元輸出引發的 `UnicodeEncodeError`（加入 `sys.stdout.reconfigure(encoding="utf-8", errors="replace")`）。
+
+### PR 軸：水位推進至 #222（新增 34 筆）
+
+34 筆新 PR 經逐筆審查：
+- **MERGED**（13 筆）：全部隨 commit 軸合併落地。
+- **OPEN**（17 筆）：包括 #219（Model architecture 圖表）、#221（西里爾字母支援）、#217（A3 橫向尺寸預設）等，遵照 fork 原則不提早 fork-ahead，留待上游合併。
+- **CLOSED 未合併**（4 筆）：#184（泰文手冊）、#204（非功能性提交）、#164（未採納之 Heatmap 方案，改為獨立設計）、#177/#178（外部服務重複 issue）。無 Windows-first 或 CJK 相關未被採納的必要修復。
+
+### issue 軸：水位推進至 #220（新增 25 筆）
+
+25 筆新 issue 經審查：
+- #175（繁體中文支援）、#187（Waterfall）、#188（Excalidraw）、#151（PPT 匯出）、#208（Cowork 描述上限）均已隨上述 PR 修復並合併。
+- 其餘 open issue 維持追蹤。
+
