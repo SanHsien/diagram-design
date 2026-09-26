@@ -318,9 +318,9 @@ def check_adversarial(tmp: Path) -> None:
         fail(f"adversarial discard counts wrong: {discarded}")
     # URLs and binary payloads carried outside labels must never cross the
     # trust boundary into any output; label text stays, as inert data.
-    for secret in ("do-not-follow", "example.invalid/tracker", "dataURL", "ZXhhbXBsZS5pbnZhbGlk"):
-        if secret in payload_text:
-            fail(f"untrusted source value crossed the trust boundary: {secret!r}")
+    for canary in ("do-not-follow", "example.invalid/tracker", "dataURL", "ZXhhbXBsZS5pbnZhbGlk"):
+        if canary in payload_text:
+            fail(f"untrusted source value crossed the trust boundary: {canary!r}")
     if "IGNORE ALL PREVIOUS INSTRUCTIONS" not in payload_text:
         fail("prompt-injection label was not retained as inert diagram text")
 
@@ -346,9 +346,9 @@ def check_adversarial(tmp: Path) -> None:
     ):
         if escaped not in output:
             fail(f"digest did not preserve escaped label text: {escaped!r}")
-    for secret in ("do-not-follow", "example.invalid/tracker", "ZXhhbXBsZS5pbnZhbGlk"):
-        if secret in output:
-            fail(f"digest leaked an untrusted URL or payload: {secret!r}")
+    for canary in ("do-not-follow", "example.invalid/tracker", "ZXhhbXBsZS5pbnZhbGlk"):
+        if canary in output:
+            fail(f"digest leaked an untrusted URL or payload: {canary!r}")
 
     extractor = load_extractor_module()
     for source in (
