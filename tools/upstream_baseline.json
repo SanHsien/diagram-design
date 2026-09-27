@@ -1,0 +1,10 @@
+{
+  "repo": "https://github.com/cathrynlavery/diagram-design.git",
+  "branch": "main",
+  "reviewed_through": "8d8b2993ee2256ee7dfc0eeb3b5713aba3b60792",
+  "reviewed_date": "2026-09-13",
+  "decision_log": "docs/fork/DECISIONS.md",
+  "notes": "2026-09-13：第二輪 triage 與同步完成。合併上游至 8d8b299（#216，版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）以及 ADR 0009 自動版號架構。ci.yml 對齊 upstream ADR 0009，auto-bump.yml 加上 official guard。修復 check_upstream_updates.py 在 Windows CP950 下的 Unicode 編碼崩潰。PR 水位 → 222、issue 水位 → 220。",
+  "reviewed_pr_through": 222,
+  "reviewed_issue_through": 220
+}

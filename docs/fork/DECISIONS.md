@@ -1,0 +1,203 @@
+# 維護決策
+
+## 2026-08-28：建立 Windows-first 維護型 fork
+
+**決定**：fork `cathrynlavery/diagram-design`，保留 MIT 與完整歷史，預設分支維持 `main`。本線聚焦 Windows 開發 gate、fork overlay 文件，以及逐筆審查的上游追蹤。根目錄 `README.md` 保持上游英文。
+
+**理由**：上游已經是可跑的編輯級圖表 skill（39 種類型、純 HTML + SVG、跨平台產品 CI）。缺的是 Windows 11 上可重現的 overlay 驗收骨架，以及「PR 只打本 fork」的硬邊界。直接用上游 repo 難以長期記錄 fork 取捨。`verify-docs-sync.py` 把英文 README 當契約，不能改寫成繁中主檔。
+
+**限制**：
+
+- 不把 fork 包裝成原創專案，不移除原作者與 MIT 標示。
+- 不把產品 skill 或範例 HTML 翻譯成繁體；產品語言跟隨上游。
+- 不把 Playwright 像素 lint 放進 overlay gate。
+- 上游更新必須逐筆審查。
+- 不回貢，除非維護者在當次對話明確同意。
+
+## 2026-08-28：維護線直接推 main
+
+**決定**：fork overlay 維護不再開功能分支。改完在本機跑 gate，通過後直接推 `origin/main`。遠端只留 `main`；`upstream/main` 只追蹤。
+
+**理由**：這是單人維護 fork，分支與 PR 沒有第二審查者，只增加同步成本。上游 `CONTRIBUTING.md` 對產品貢獻仍要求開分支；那是給上游貢獻者的規則，本線 overlay 不跟。
+
+**限制**：
+
+- Dependabot 與外部 fork 仍可能開 PR，讀 diff 後再合併，不自動合併。
+- 不推 `upstream`，不 force-push `main`。
+- 不刪 `upstream` remote。
+
+## 2026-08-28：產品 ci.yml 繼續在本 fork 跑
+
+**決定**：不上游-only guard。overlay workflows 自己 pin SHA；產品 `ci.yml` 維持上游寫法。
+
+**後續**：2026-08-28 審查可修項已 pin 產品 `ci.yml` 的 checkout／setup-python／setup-node SHA；指令字串仍不動。
+
+## 2026-08-28：Pages 部署只留在官方 repo
+
+**決定**：`pages.yml` 加上 `github.repository == 'cathrynlavery/diagram-design'`。
+
+**理由**：GitHub Pages 是每 repo 一份。本 fork 預設沒開 Pages，每次推 `main` 都會紅。官方 gallery 屬於上游產品站，不是本線要複製的公開入口。
+
+## 2026-08-28：fork gate 不跑產品 Playwright
+
+**決定**：`tools/dev_check.ps1` 只驗 overlay Python。產品 e2e／像素 lint 留在上游 `ci.yml` 的 Ubuntu 3.12 job。
+
+**理由**：Playwright 需要瀏覽器與較長時間；Cursor stop hook 會跑 `dev_check.ps1`。把像素 lint 放進 overlay gate 會讓每次結束都等完整產品 CI。
+
+## 2026-08-28：現有上游 open PR／issue 不在建置當下逐筆審查
+
+**決定**：`reviewed_through` 設為 fork 起點 `ac490fd1ac4b4014100f93e729cb4ad198700bd4`。不寫 `reviewed_pr_through`／`reviewed_issue_through`，避免把「還沒讀 diff」標成已審。
+
+**理由**：本輪目標是開發環境。open PR（截至 #158）與 open issue 下次做上游審查時從最小編號開始看。
+
+## 2026-08-28：overlay 提交不 bump 產品 plugin 版號
+
+**決定**：`ci.yml` 的 `verify-plugin-package.py` 只在 `skills/`、plugin manifests、`commands/`、`prompts/` 有變時才跑。overlay 文件／Windows gate 提交不 bump `2.6.7`。
+
+**理由**：上游把每一次 `main` 提交都當成發佈包變更。本線若跟著 bump，fork 的 marketplace 版號會無產品變更地領先上游。merge 上游時若這段被蓋掉，要把 skip 加回去。
+
+## 2026-08-28：不要把產品 HTML／SVG 標成 git binary
+
+**決定**：`.gitattributes` 不寫 `*.html binary`／`*.svg binary`。
+
+**理由**：產品 CI 用 `git diff --ignore-space-at-eol` 核對 `build-icons.py` 產物。標成 binary 後該旗標失效，Ubuntu／macOS 把 regenerating 的 LF 與 blob 的空白差當成失敗。Windows job 碰巧綠，不是契約。
+
+## 2026-08-28：審查可修項落地（不回貢）
+
+**決定**：在本 fork 修完 REVIEW 裡還能改、且不改產品信任模型／身份契約的項：產品 `ci.yml`／`pages.yml` pin action SHA、`pages.yml` checkout 加 `persist-credentials: false`、script 結束標籤正則改成 `</script\b[^>]*>`（對齊 HTML parser 能接受的 junk）。不送上游。
+
+**理由**：主人這次對話要求「可修的都修、先不考慮回貢」。plugin `homepage`、英文 README 作者 CTA、Mermaid `-->` 文法（CodeQL 誤報）仍屬產品契約，維持不改。
+
+**限制**：
+
+- 不翻英文 README、不把 Playwright 放進 overlay gate、不合併未讀的上游 PR。
+- 不在 GitHub UI 關閉 CodeQL alert（修碼後等下次掃描）。
+- 不 bump plugin 版號：本輪沒改 `skills/` 或 plugin manifests。
+
+
+## 2026-08-29：上游檢查補上 PR 與 issue 兩個面向
+
+**決定**：`tools/check_upstream_updates.py` 補上以 `--state all` 收集上游 PR／issue 的邏輯，
+`upstream-check.yml` 補 `GH_TOKEN: ${{ github.token }}`，並新增 `tests/test_upstream_updates.py`。
+**不**補 `reviewed_pr_through`／`reviewed_issue_through`。
+
+**理由**：`docs/fork/UPSTREAM.md` 早就寫著「四個面向都要看」，但檢查器只讀 commit 水位，PR／issue
+沒有程式在看，排程報告卻是綠的。把收集補上，那兩個面向才真的被排程檢查。水位不補，是因為 triage
+真的還沒做——寫上數字會把未分類的待辦洗成已審查。
+
+**代價（已知且刻意）**：缺水位＝0，所以每週的 upstream-check 會列出整份上游 PR／issue 清單並回
+exit 1，在 triage 做完之前這支檢查是紅的。這是真實狀態，不是故障。
+
+**觸發條件**：做完初次 triage、逐筆理由寫進本檔之後，才把水位寫進 baseline，紅燈才會消失。
+
+
+## 2026-08-30：初次上游 triage 完成——合併 `b52a33b`，三個面向水位一起落地
+
+先前 baseline 刻意留空 PR／issue 水位（「真的還沒逐筆讀」）。本輪做完，理由如下。
+
+### commit 軸：合併上游唯一的新 commit `b52a33b`（#160）
+
+`ac490fd` 之後上游只有一筆，44 檔 +6522（新增 line／scatter 圖表變體、style-guide 強化）。
+依本檔的同步規則「可直接同步的提交用 merge」執行 `git merge`。
+
+**衝突只有 `.github/workflows/ci.yml` 一處**，而且不是同一件事：上游新增
+`Verify maintainer policy tracks package and CI truth` step，本 fork 有
+`Detect packaged plugin path changes`（讓 overlay-only 提交不必動產品 plugin 版號）。
+兩個 step 都保留。
+
+**實查 overlay 沒有被蓋掉**：`pages.yml` 的 `github.repository == 'cathrynlavery/diagram-design'`
+guard 兩處都在、README 頂部 fork overlay 在、`ci.yml` 的 plugin 版號 skip 在。
+本 fork 對 `scripts/` 的三處強化（`</script\s*>` → `</script[^>]*>`，用來擋
+`</script foo>` 這種收尾）也完整保留——它們與上游改的行不同，git 自動合併成功。
+
+**驗證**：fork gate（compileall／ruff／pytest／連結）全綠，加上游六支產品驗證
+`test-lint-a11y`／`lint-skin --all --baseline`／`verify-docs-sync`／`test-verify-motion`／
+`test-plugin-package`／`test-maintainer-policy` 全部 exit 0。
+
+### PR 軸：117 筆，水位推進到 163
+
+| 分類 | 筆數 | 判定 |
+| --- | --- | --- |
+| MERGED | 65 | 已在 `upstream/main`。合併 `b52a33b` 之後本 fork 就在上游 tip，產品原始碼與上游逐位元組相同（唯一差異是上述三處強化），所以這 65 筆的內容**已經在本 fork 裡** |
+| OPEN | 19 | 還不是上游狀態。本 fork 不 fork-ahead 產品（`FORK.md`：產品以上游為準） |
+| **CLOSED 未合併** | **33** | 見下 |
+
+**33 筆關閉未合併的判準**——這一類永遠不會經由 commit 軸抵達，所以不能用「等上游合併」帶過。
+本 fork 的實際處境是：**產品原始碼與上游相同，沒有任何分歧的產品程式碼**。因此一個被上游拒收的
+PR 在這裡不可能是在修「本 fork 才有的缺陷」——採用它等於製造與上游的分歧，而那正是 `FORK.md`
+排除的。
+
+**唯一該例外檢查的是 Windows-first／CJK 這一類**（本 fork 的主線環境與內容語言），實查那 33 筆
+標題，只有兩筆落在這個範圍，而且**兩筆的內容都已經在本 fork 裡**：
+
+| PR | 它加了什麼 | 合併後本 fork 的狀態 |
+| --- | --- | --- |
+| `#76` Fix/allow cjk font fallbacks | `ALLOWED_FONTS` 加 `hiragino sans`／`noto sans jp`／`yu gothic`／`noto sans mono cjk jp` | **四個全在** |
+| `#86` add Korean label rules and Noto Sans KR | KR 字型族 | `noto sans kr`／`noto serif kr`／`apple sd gothic neo`／`malgun gothic`／`noto sans mono cjk kr` **全在** |
+
+其餘 31 筆是新圖表型別提案（`#92`–`#103` 等）、工具提案（`#18`／`#27`／`#132`）、文件與早期
+分支整併——都是上游的產品策展決定，不是本 fork 的缺陷。
+
+**觸發條件**：本 fork 哪天開始維護分歧的產品程式碼（目前沒有），或出現只在 Windows 上發生、
+而上游拒收的修正，就要回來重讀這 31 筆。
+
+### issue 軸：水位推進到最大編號
+
+上游 issue 是產品的功能請求與缺陷回報（新圖表型別、palette 對比、PowerPoint SVG 匯出…）。
+與 PR 同理：本 fork 產品碼與上游相同，這些缺陷若成立是**上游產品的缺陷**，修正會經由 commit 軸
+抵達。本 fork 沒有可獨立引用的內容。
+
+## 2026-09-13：上游第二輪 triage 與同步（合併 `8d8b299`，ADR 0009 落地，繁中與 Waterfall/Excalidraw 導入）
+
+### commit 軸：合併上游 27 個 commit 至 `8d8b299`（版本 2.6.22）
+
+1. **重大功能更新**：
+   - **繁體中文支援**（`#186` / `#196`）：正式引入 Noto Sans TC / Noto Serif TC，新增繁體中文標籤規則與 SVG 匯出字型 `@import` 對齊。
+   - **Waterfall 瀑布圖**（`#191`）：新增第 40 種核心視覺圖表（含 dark/full 變體、驗證器與 ADR 0011）。
+   - **Excalidraw 匯入**（`#192`）：支援 Excalidraw 檔案解析並以編輯級樣式重繪。
+   - **區塊分解語意模式**（`#169`）：新增 Traceable block decomposition 模式與 ADR 0010。
+   - **PowerPoint SVG 匯出相容性**（`#151`）：normalize rgba()/transparent 避免匯入 PowerPoint 時黑色塊問題。
+   - **強韌性優化**：修復 doctor（#201）、self-check（#205）與 plugin 描述長度（#216）。
+
+2. **版本發布機制變革（ADR 0009）與 fork overlay 調整**：
+   - 上游將版本 bump 機制由原本「PR 必須自帶版號更新」轉為「PR 內嚴格禁止更動版號（`--require-no-bump`），merge 到 main 後由 `auto-bump.yml` 自動遞增並發布」。
+   - **fork overlay 對齊**：
+     - 在 `.github/workflows/ci.yml` 採用上游的新版號檢查機制（main 僅檢查 `--current-only` 一致性，PR 檢查 `--require-no-bump`），完全自然相容本 fork 的 overlay 提交。
+     - 在 `.github/workflows/auto-bump.yml` 加入 `if: github.repository == 'cathrynlavery/diagram-design'` 官方 repo 專屬 guard，並在 `tests/test_fork_overlay.py` 中納入 `GATED_WORKFLOWS` 門禁保護，避免 fork 嘗試進行自動發布。
+
+3. **Windows 11 原生環境缺陷修復**：
+   - 修復 `tools/check_upstream_updates.py` 在 Windows 原生控制台（CP950 編碼）下遇泰文或特殊字元輸出引發的 `UnicodeEncodeError`（加入 `sys.stdout.reconfigure(encoding="utf-8", errors="replace")`）。
+
+### PR 軸：水位推進至 #222（新增 34 筆）
+
+34 筆新 PR 經逐筆審查：
+- **MERGED**（13 筆）：全部隨 commit 軸合併落地。
+- **OPEN**（17 筆）：包括 #219（Model architecture 圖表）、#221（西里爾字母支援）、#217（A3 橫向尺寸預設）等，遵照 fork 原則不提早 fork-ahead，留待上游合併。
+- **CLOSED 未合併**（4 筆）：#184（泰文手冊）、#204（非功能性提交）、#164（未採納之 Heatmap 方案，改為獨立設計）、#177/#178（外部服務重複 issue）。無 Windows-first 或 CJK 相關未被採納的必要修復。
+
+### issue 軸：水位推進至 #220（新增 25 筆）
+
+25 筆新 issue 經審查：
+- #175（繁體中文支援）、#187（Waterfall）、#188（Excalidraw）、#151（PPT 匯出）、#208（Cowork 描述上限）均已隨上述 PR 修復並合併。
+- 其餘 open issue 維持追蹤。
+
+## 2026-09-13：代碼審查缺陷修復、優質上游 PR 採納與標籤整頓（PR #210, #222, #212, Issue #202/#203）
+
+### 1. 代碼審查與程式碼品質修復
+- **`skills/diagram-design/scripts/drawio_extract.py`**：修復 `F821` 缺陷，補充 `from typing import NoReturn`，修正 `_fail` 函式的回傳型別註解。
+- **`scripts/fix-mojibake.py`**：修復 `F541` 缺陷，移除無佔位符的冗餘 `f-string` 前綴。
+- **`scripts/verify-doctor.py`**：修復 `F401` 缺陷，移除未使用的 `import os`。
+- **`tools/dev_check.ps1`**：擴大本機 fork gate 檢查範疇，將 `scripts/` 與 `skills/diagram-design/scripts/` 納入 `compileall` 與 `ruff (E9+F)` 檢查清單，確保後續腳本變更均受型別與語法安全保護。
+
+### 2. 優質上游修正提早採納（非新圖表型別，純語法解析/文件一致性修復）
+遵照 `FORK.md` 原則，本 fork 不 fork-ahead 引入尚未拍板的新圖表型別（如 PR #219），但針對無爭議的 parser bugfix 與文件編號一致性予以提前採用：
+- **採納 PR #210（修復 Issue #209）**：Mermaid 緊湊虛線箭頭標籤允許帶空格語法（`A-.label with space.->B`）。修改 `skills/diagram-design/scripts/mermaid_extract.py` 並於 `scripts/verify-mermaid-import.py` 增加迴歸驗證測試。
+- **採納 PR #222（修復 Issue #213）**：修復 `skills/diagram-design/assets/index.html` 藝廊標籤頁序號不連續問題（Waterfall 54 -> 20, Line 20 -> 21, ..., Excalidraw 55 -> 52）。並同步於 `scripts/verify-docs-sync.py` 增加連續性驗證器與 `scripts/test-verify-docs-sync.py` 單元測試。
+- **採納 PR #212（修復 Issue #211）**：移除 `README.md` 寫死的 "39 visual types" 舊計數，改為引用 `SKILL.md §3`；並將 `README.md` 納入 `scripts/verify-docs-sync.py` 的 `COUNT_SURFACES`，防止未來再度出現硬編碼過期數字。
+- **修復 Issue #202 / #203**：在 `skills/diagram-design/references/export.md` 中補充帶有 class-based 樣式（如 `.station`, `.ring`）與 `:root` 變數之圖表在獨立匯出 SVG 時的 CSS 內聯與命名空間避免碰撞指引，防止在 PPT/向量工具中呈現黑塊。
+
+### 3. Git 標籤衛生整頓（只保留最新 tag）
+- 檢查本機與遠端 `origin`（`SanHsien/diagram-design`）標籤，確認無舊版本殘留標籤。
+- 建立並推播當前最新產品版號標籤 `v2.6.22` 至 `origin`，確保遠端僅保留單一最新 tag。
+
+
