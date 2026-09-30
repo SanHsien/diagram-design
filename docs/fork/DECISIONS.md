@@ -201,3 +201,28 @@ PR 在這裡不可能是在修「本 fork 才有的缺陷」——採用它等�
 - 建立並推播當前最新產品版號標籤 `v2.6.22` 至 `origin`，確保遠端僅保留單一最新 tag。
 
 
+
+## 2026-09-30：第三輪上游審查（commit 至 57148ac、PR 至 #263、issue 至 #262）
+
+本 fork 的產品檔與上游一致（歷史已壓縮，無共同祖先，不能 merge），因此只能 `cherry-pick -x`。基準代表已審查，不代表全部合併。
+
+### commit 軸（48 筆）
+
+- **採用（4 筆，cherry-pick -x，各自的 verify 腳本通過）**：#224 雙向箭頭環偵測（excalidraw）、#223 巢狀座標解析（drawio）、#230 slopegraph／ridgeline／bubble 標記解析、#260 motion 只讀根 svg 的 title/desc。
+- **採用待辦（adoption pending: 與本 fork 已提早採納的 #210/#212/#222 衝突或牽動整批產品檔）**：#258 Mermaid 語句長度上限（`mermaid_extract.py` 衝突）；#235 SVG 匯出 CSS／defs 命名空間（取代本 fork 的 #202/#203 export.md 段落，需連同 ci.yml、政策檔一起同步）；#245 模板 scroller、#256 SKILL.md LF 與位元組上限、#259 SKILL.md 拆分、#253 截圖 hash、#167 skill guard、#261 政策由 ci.yml 推導、#255 版本比對 CI、#182/#221/#248 文件與字型規格（各自改動 SKILL.md、README、verify-docs-sync 或截圖，需整批同步並跑上游 Playwright 閘門，本機無法驗證）。觸發條件：下次整批同步產品檔時一併處理。
+- **新圖表型別／功能，不 fork-ahead**：#228 lifecycle、#231 marimekko、#140 streamgraph、#164 heatmap、#248 A3 預設、#212 後續 README 計數閘門（README 計數已於前輪處理）。留待上游穩定後整批同步。
+- **不適用（歸組）**：24 筆 `chore(release): bump plugin manifests`（2.6.23 至 2.6.46）、#263 hero 圖與 social preview（上游宣傳素材）、#255／#261 純 CI 與政策。
+
+### PR 軸（26 筆，#223 至 #263）
+
+- MERGED 16 筆：隨 commit 軸處理，見上。
+- OPEN 3 筆（#241 architecture delta、#240 文字度量文件、#249 簡體中文 Noto 字型）：不 fork-ahead；#249 屬 CJK 類，觸發條件為上游合併後與整批同步一起採用。
+- CLOSED 未合併 5 筆：#225 測試 PR、#232（README 計數，已由 #212 涵蓋）、#234（Mermaid 空白標籤，已由 #210 涵蓋）、#239（A3，被 #248 取代）、#243（LM Studio 離線 runner，上游專屬功能）。無 Windows-first 缺陷。
+
+### issue 軸（14 筆，#226 至 #262）
+
+- 對應上述功能／修正的追蹤項：#226/#227/#229/#250/#251/#252 功能請求（不採用）、#237/#246 位元組上限與 CRLF（待辦 #256；本 fork 在 Windows 上，觸發條件為同步 SKILL.md 時重驗）、#238/#247 截圖過期（待辦 #253）、#244 手機版模板（待辦 #245）、#254 RTL 支援（功能請求）、#262 無人值守政策（提案）、#242 感謝訊息（不適用）。
+
+### 上游分支
+
+- `repo-sweet-maintainer`：上游維護者工作分支（lifecycle #228 的後續，已隨 #228 合併），不適用。
