@@ -43,7 +43,7 @@
 - 提交訊息用 Conventional Commit。Dependabot 或外部 fork 的變更也走 PR，讀 diff 並通過 CI 後再合併。
 - `REVIEW.md` 是風險快照，不是每個一般 bug 的流水帳。
 - 不 force-push `main`，不刪 `upstream` remote。
-- 不要把 `CLAUDE.md` 做成 git symlink。本 fork 改存一般檔。
+- 不新增 `CLAUDE.md`；Claude Code 直接讀本檔。
 
 ## 上游處理
 
