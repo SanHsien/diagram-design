@@ -11,6 +11,15 @@ src = ["tests", "tools"]
 # Syntax errors and pyflakes only. Do not reformat upstream HTML / skills.
 select = ["E9", "F"]
 
+# Upstream product code is kept byte-identical to upstream, so lint debt that
+# lives there is recorded here instead of patched. Each entry names the finding;
+# remove the entry when upstream fixes it.
+[tool.ruff.lint.per-file-ignores]
+"scripts/axonometry.py" = ["F841"]
+"scripts/fix-mojibake.py" = ["F541"]
+"scripts/test-export-svg-standalone.py" = ["F811"]
+"skills/diagram-design/scripts/drawio_extract.py" = ["F821"]  # NoReturn used only in an annotation
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"

@@ -107,7 +107,7 @@ exit 1，在 triage 做完之前這支檢查是紅的。這是真實狀態，不
 
 **實查 overlay 沒有被蓋掉**：`pages.yml` 的 `github.repository == 'cathrynlavery/diagram-design'`
 guard 兩處都在、README 頂部 fork overlay 在、`ci.yml` 的 plugin 版號 skip 在。
-本 fork 對 `scripts/` 的三處強化（`</script\s*>` → `</script[^>]*>`，用來擋
+本 fork 對 `scripts/` 的三處強化（`</script\s*>` → `</script\b[^>]*>`，用來擋
 `</script foo>` 這種收尾）也完整保留——它們與上游改的行不同，git 自動合併成功。
 
 **驗證**：fork gate（compileall／ruff／pytest／連結）全綠，加上游六支產品驗證
@@ -226,3 +226,59 @@ PR 在這裡不可能是在修「本 fork 才有的缺陷」——採用它等�
 ### 上游分支
 
 - `repo-sweet-maintainer`：上游維護者工作分支（lifecycle #228 的後續，已隨 #228 合併），不適用。
+
+
+## 2026-10-25：第四輪上游審查（commit 至 0b9b10c、PR 至 #472、issue 至 #476），整批同步
+
+09-30 條目的「採用待辦」觸發條件是「下次整批同步產品檔」，本輪即該次。上游這段有 170 個 commit、152 個 PR、61 個 issue；fork 的 `fork-maintenance`／`Upstream check` 也因此紅。
+
+### 做法
+
+本 fork 歷史已壓縮、與上游無共同祖先（`git merge-base HEAD upstream/main` 無輸出），`git merge upstream/main` 不可行；也**不**用 `--allow-unrelated-histories` 把上游 377 個 commit 接回來，那會推翻壓縮決定。改成：以 `upstream/main` 樹為底，放回 fork 專屬檔，再把覆蓋層逐項重套，單親 commit 推 `origin/main`。
+
+覆蓋層重套清單（以 `git diff 57148ac HEAD` 為準，只重套刻意的部分；落後上游的部分一律取上游）：
+
+| 檔案 | 處理 |
+| --- | --- |
+| `README.md`／`CONTRIBUTING.md`／`SECURITY.md`／`CODE_OF_CONDUCT.md`／`.github/PULL_REQUEST_TEMPLATE.md` | 取上游正文，頂部 fork overlay 放回；README 的 Changelog 連結改指上游（上游新增的 `CHANGELOG.md` 與本 fork 同名，保留本 fork 維護史） |
+| `.github/workflows/pages.yml`／`auto-bump.yml` | 取上游（已全數 SHA 釘版），加回 `github.repository == 'cathrynlavery/diagram-design'` 閘門 |
+| `.github/workflows/ci.yml` | 取上游，不加任何 guard（`test_product_ci_is_not_official_repo_only`） |
+| `.github/ISSUE_TEMPLATE/config.yml`、`.gitattributes`、`.gitignore` | fork 版／上游規則加 fork 規則 |
+| `AGENTS.md` | 保留本檔；上游同名新檔的「新增型別清單」併入新章節；型別計數 39→45 |
+
+上游新增檔的取捨：`CLAUDE.md`（`@AGENTS.md` 匯入行）不收，repo 只用 `AGENTS.md`；`.github/CODEOWNERS`（`* @cathrynlavery`）與 `.github/FUNDING.yml`（作者贊助按鈕）屬上游作者，不收；`.github/workflows/ci-configuration.yml`（zizmor 稽核 `.github/**`）收；`.maintainer-policy.json`、`.qoder-plugin/`、`PRIVACY.md` 隨產品樹收。
+
+### 本 fork 對上游的分歧（產品碼 3 組共 5 個檔，加 1 項設定；皆未回貢）
+
+1. `scripts/lint-skin.py`、`scripts/test-verify-motion.py`、`scripts/test-lint-a11y.py`：`</script\s*>` → `</script\b[^>]*>`（08-28 起；上游至 0b9b10c 仍是 `\s*`）。
+2. `scripts/plugin_version_history.py`：錯誤訊息的路徑改 `as_posix()`。Windows 上印成 `.codex-plugin\plugin.json`，`scripts/test-plugin-package.py` 比對正斜線而失敗。
+3. `scripts/test-verify-doctor.py`：`tasklist` 輸出加 `errors="replace"`。繁中 Windows 的 `tasklist` 是 cp950，`PYTHONUTF8=1`（本 fork 文件要求設的）下以 UTF-8 解碼會丟 `UnicodeDecodeError`，`stdout` 變 `None`。
+4. `pyproject.toml` 的 `per-file-ignores`：上游 4 個檔有 5 個 pyflakes 發現（`F841`、`F541`、`F811`×2、`F821` 的 `NoReturn` 只用在註解），產品檔保持與上游逐位元組相同，改在設定檔記錄；上游修掉就刪該行。
+
+PLAYBOOK §2 判準六的表格寫 `diagram-design` 分歧產品檔為 0，這是 08-28 之前的狀態；實際上第 1 項早就存在。
+
+### commit 軸（170 筆）
+
+全採，隨樹同步（沒有逐筆略過）。其中 74 筆 `chore(release): bump plugin manifests`、8 筆 merge、其餘為修正與新型別（architecture delta／containment、service blueprint、axonometric plan／exploded、heatmap、marimekko、streamgraph、lifecycle、steps 以外的已合併項目等），型別計數 39→45（`VISUAL_TYPE_COUNT = 45`）。09-30 列的「採用待辦」（#258、#235、#245、#256、#259、#253、#167、#261、#255、#182、#221、#248）與「新圖表型別，不 fork-ahead」（#228、#231、#140、#164）全部隨此次同步收齊。
+
+### PR 軸（152 筆，#264 至 #472）
+
+- MERGED 70 筆：70 筆編號全部出現在已同步的 commit 紀錄裡（腳本比對 `git log 57148ac..upstream/main` 的 `#N`，缺 0 筆）。
+- CLOSED 未合併 56 筆、OPEN 26 筆：本 fork 產品碼 = 上游 + 上列 1–3 的分歧，被上游拒收或未合併的 PR 不可能在修「只有本 fork 才有的缺陷」（判準六），只查 Windows／CJK 類。以 `windows|cp950|crlf|backslash|utf-?8|unicode|cjk|chinese|japanese|noto|mojibake|powershell|encoding` 掃標題與內文，命中：
+  - **#465（OPEN）** `test-verify-docs-sync` 在 CRLF 檢出下失敗：Windows 類，影響本機（`core.autocrlf=true`）檢出，不影響 CI。本輪用 LF 檢出驗證；觸發條件：上游合併後隨整批同步採用，或 fork 的 `dev_check.ps1` 開始跑產品測試時。
+  - **#371／#389／#390／#391（CLOSED）** Mermaid 的 Unicode 識別字（CJK 類）：已由 #410 併入。實測 `mermaid_extract.py`：`erDiagram` 的「客戶／訂單／孤立實體」三個實體與「待機 : 等待輸入」的狀態描述都保留（見 REVIEW 證據）。
+  - **#301（CLOSED）** doctor 的 Playwright 探測：由 #348 併入；`verify-doctor.py` 已不依賴 `playwright.__version__`。
+  - 其餘命中（#472、#458、#440、#433、#335、#315）是文件／文法中的關鍵字，不是 Windows 或 CJK 缺陷。
+
+### issue 軸（61 筆，#263 至 #476；52 CLOSED／9 OPEN）
+
+Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--out` 無法寫入（#413）、#298 PNG 檔名含 `#`／`%`（#348）、#407／#429 SVG 匯出（#414／#432），皆已在同步的樹內。OPEN 9 筆（含 #463、#473 Mermaid 摘要與連字號節點）是上游缺陷，與本 fork 相同，等上游修。
+
+### 上游分支
+
+71 條上游分支，57 條尚未併入 `upstream/main`；它們是 PR 工作分支，PR 軸已涵蓋，不另列。
+
+### 其他
+
+- 依賴新鮮度：`ruff>=0.16` 對 PyPI 的 0.17.2。fork 的 gate 只選 `E9,F`，兩個版本行為相同，下限是相容性承諾，故在宣告行寫 `# freshness-hold:`，沒有調高下限。
+- 本機驗證沒跑到的項目（沒裝 Playwright 瀏覽器）：`lint-render.py`、`verify-excalidraw-import.py` 與其測試、`test-export-wait.py`，交給 CI 的 Ubuntu／Windows job。

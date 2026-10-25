@@ -5,7 +5,7 @@
 ## 專案定位
 
 這是 [`cathrynlavery/diagram-design`](https://github.com/cathrynlavery/diagram-design) 的 MIT fork。
-核心價值是一套給 AI Agent 用的編輯級圖表 skill：39 種視覺類型、純 HTML + SVG、座標與間距可被 4 整除、沒有陰影、圓角最多 10px。不是再做一個 Mermaid 包裝器。
+核心價值是一套給 AI Agent 用的編輯級圖表 skill：45 種視覺類型、純 HTML + SVG、座標與間距可被 4 整除、沒有陰影、圓角最多 10px。不是再做一個 Mermaid 包裝器。
 
 `origin` 是 `SanHsien/diagram-design`，`upstream` 是原作者 repo，預設分支皆為 `main`。
 保留上游作者、MIT 授權與產品 `skills/diagram-design/`、`scripts/`、`commands/`、`prompts/`。本 fork 的維護差異記在 [`FORK.md`](FORK.md) 與 [`docs/fork/DECISIONS.md`](docs/fork/DECISIONS.md)。
@@ -36,7 +36,7 @@
 
 - 一般 overlay 變更直接推 `origin/main`，不開功能分支、不開維護 PR。只有在需要他人審查、或改動風險高到值得先讓 CI 在 PR 上跑一輪時，才退回 **branch → PR → CI → merge**。
 - 修 overlay bug 先補可重現失敗測試，再做最小修正。
-- 上游公開安裝方式、skill frontmatter（`name` + `description`）、39 種類型詞彙、座標可被 4 整除的設計契約視為相容性契約。
+- 上游公開安裝方式、skill frontmatter（`name` + `description`）、45 種類型詞彙、座標可被 4 整除的設計契約視為相容性契約。
 - 不為了套格式而大改上游檔案；Ruff 只閘 E9（語法）與 F（pyflakes），且只掃 fork 的 Python。
 - 使用繁體中文回覆；維護文件以繁中為主，公開產品入口保持英文 `README.md`。
 - 上游更新英文 `README.md` 時：保留頂部 overlay，同步產品說明，不要帶回作者宣傳到 overlay 文件。
@@ -50,7 +50,7 @@
 1. `git fetch upstream main`
 2. `python tools/check_upstream_updates.py --strict`
 3. 逐筆判斷是否與 fork overlay、Windows gate 或測試衝突。
-4. 可同步的提交用 merge；只需要部分修正時 cherry-pick 或最小重做。
+4. 本 fork 歷史已壓縮、與上游沒有共同祖先，`git merge upstream/main` 不可行。整批同步的做法：以上游樹為底，把 fork 專屬檔與已記錄的覆蓋層（見 `docs/fork/DECISIONS.md` 2026-10-25）逐項放回；只需要部分修正時 cherry-pick -x 或最小重做。
 5. 跑 `pwsh -NoProfile -File tools\dev_check.ps1`。產品檔有動再跑對應的 `scripts/verify-*.py`／`scripts/lint-skin.py`。
 6. 採用／略過寫進 `docs/fork/DECISIONS.md`，驗證後才推進 `tools/upstream_baseline.json`
 
@@ -61,6 +61,16 @@ Baseline 代表「已審查」，不代表「全部已合併」。
 下次只看更大的編號或變動過的 head。
 
 **判準是證據，不是分類。** 結論要寫得可查證：diff 動了哪些檔案、本 fork 對應的檔案實際長什麼樣，以及**觸發條件**。
+
+## 新增圖表型別（上游清單）
+
+上游在 `AGENTS.md` 列了新增型別時代理常漏的事，本 fork 的 `AGENTS.md` 取代它（上游檔不單獨保留）。要新增型別或變體，先讀 `CONTRIBUTING.md` 的 "Adding a new diagram type"，並照做：
+
+- **Gallery**：每個範例登記在 `skills/diagram-design/assets/index.html`；新型別取下一個編號，既有型別的其他範例是緊接在父項後的字母變體（`data-parent-type`、eyebrow 如 `28c`）。
+- **型別計數（新型別）**：調高 `scripts/verify-docs-sync.py`、`scripts/verify-semantic-motion.py` 的 `VISUAL_TYPE_COUNT`，以及 `scripts/verify-screenshot-freshness.py`、`scripts/render-canonical-screenshots.py` 寫死的計數；再修掉套件回報的每個計數（README、SKILL.md、CONTRIBUTING、`onboarding.md`、`semantic-patterns.md`，加 ADR 0002 的新增條）。fork 文件的計數（`FORK.md`、本檔）由 `tests/test_fork_overlay.py` 對 `VISUAL_TYPE_COUNT` 核對。
+- **Plugin manifests**：`.claude-plugin`、`.codex-plugin`、`.factory-plugin`、`.qoder-plugin` 的 `description`／`keywords` 要一致；`version` 不動（ADR 0009 由 main 自動升）。
+- 沒有套件檢查、要手做：README 縮圖與格子（跑 `scripts/render-canonical-screenshots.py`、`scripts/build-readme-thumbs.py`）、README 命名變體行、README 檔案樹、`references/layout-budget.md` 的預算列。
+- push 前跑 `.maintainer-policy.json` 的 `gates.local_commands`。
 
 ## 驗證
 

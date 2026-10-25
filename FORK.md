@@ -5,7 +5,7 @@
 
 ## 為什麼維護 fork
 
-- 保留上游持續更新的 39 種編輯級圖表 skill、HTML／SVG 範例、draw.io／Mermaid 匯入與驗證閘門。
+- 保留上游持續更新的 45 種編輯級圖表 skill、HTML／SVG 範例、draw.io／Mermaid 匯入與驗證閘門。
 - 採 Windows-first 維護：Windows 11 + PowerShell 是主要開發、除錯與完整 overlay 驗收環境。
 - 繁中維護規則放 `FORK.md`；根目錄 `README.md` 必須保持上游英文產品說明（`scripts/verify-docs-sync.py` 會核對 README 架構樹）。
 - 建立可重現的 Windows fork gate、fork CI，以及逐筆審查的上游追蹤。

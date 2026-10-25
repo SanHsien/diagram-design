@@ -11,6 +11,18 @@ Per-commit adopt/skip reasoning is recorded in [`docs/fork/DECISIONS.md`](docs/f
 
 ---
 
+## 2026-10-25 (fourth upstream sync)
+
+### Changed
+
+- **Product tree synced to upstream `0b9b10c` (2.6.120).** 45 diagram types, the Qoder plugin, SVG/PNG export and import-verifier fixes. The overlay (README head, workflow guards, issue template, `.gitattributes`) was re-applied; per-item reasons are in `docs/fork/DECISIONS.md`.
+- **Three Windows fixes.** Version-history errors print forward-slash paths, the doctor test tolerates cp950 `tasklist` output, and the script end-tag regex stays `\b[^>]*`.
+- **`ruff>=0.16` carries a `freshness-hold`** instead of a raised floor.
+
+This pass does not contribute back upstream.
+
+---
+
 ## 2026-08-28 (land remaining review remediations)
 
 ### Changed

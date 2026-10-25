@@ -10,6 +10,18 @@
 
 ---
 
+## 2026-10-25（第四輪上游整批同步）
+
+### 變更
+
+- **產品樹同步到上游 `0b9b10c`（2.6.120）。** 45 種圖表型別、Qoder plugin、SVG／PNG 匯出與匯入驗證器修正；覆蓋層（README 頂部、workflow 閘門、issue template、`.gitattributes`）重套，逐項理由見 `docs/fork/DECISIONS.md`。
+- **三處 Windows 修正。** 版本歷史錯誤訊息用正斜線路徑、doctor 測試容忍 cp950 的 `tasklist` 輸出、script 結束標籤正則維持 `\b[^>]*`。
+- **`ruff>=0.16` 加 `freshness-hold`**，不調高下限。
+
+本輪不回貢。
+
+---
+
 ## 2026-08-28（審查可修項落地，不回貢）
 
 ### 變更

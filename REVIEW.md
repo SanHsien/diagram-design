@@ -7,6 +7,10 @@
 - 主環境：Windows 11、PowerShell、Python 3.14（overlay gate）；產品 CI 仍是上游 `ci.yml`（Ubuntu／Windows／macOS，Python 3.9／3.11／3.12）
 - 狀態：可繼續當 Windows 維護線。**不是**產品安全審計通過證明。本輪 **不回貢**。
 
+## 2026-10-25 更新
+
+本檔其餘內容是 2026-08-28 的快照。之後的狀態：上游水位 `0b9b10cab3dbf695642fa1a6c4b4f60df9083689`（PR #472／issue #476），產品樹與上游 2.6.120 同步，型別 45 種，plugin manifests 版號 2.6.120。第四輪的 commit／PR／issue 判準見 [`docs/fork/DECISIONS.md`](docs/fork/DECISIONS.md)。
+
 ## 結論
 
 這個 fork 適合作為 Windows 本機、給 Agent 維護的 Diagram Design 開發線。產品行為跟隨 `cathrynlavery/diagram-design`：39 種編輯級 HTML／SVG 圖表、draw.io／Mermaid 匯入、skin／geometry 驗證。本線加上 overlay：頂部 fork 標示、Windows gate、上游追蹤、CodeQL、Dependabot。

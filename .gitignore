@@ -2,6 +2,7 @@
 .mcp.json
 __pycache__/
 *.py[cod]
+dist/
 
 # Fork overlay
 .venv/

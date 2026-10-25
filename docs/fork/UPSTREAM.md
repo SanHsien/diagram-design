@@ -97,3 +97,10 @@ overlay-only、產品原始碼與上游逐位元組相同，所以被上游拒�
 - PR 水位：**#263**（26 筆）。
 - issue 水位：**#262**（14 筆）。
 - 本 fork 歷史已壓縮、與上游無共同祖先，故只能 cherry-pick。
+
+
+## 2026-10-25：第四輪整批同步，水位推進到 `0b9b10cab3dbf695642fa1a6c4b4f60df9083689`
+
+- commit：170 筆（版本 2.6.47 至 2.6.120）全採，**不是 merge**：歷史已壓縮、無共同祖先，改以上游樹為底重套覆蓋層（清單在 [`DECISIONS.md`](DECISIONS.md) 2026-10-25）。這同時收掉 09-30 的「採用待辦」。
+- PR 水位：**#472**（152 筆）。issue 水位：**#476**（61 筆）。
+- 之後的同步照同一個做法：先 `git diff <上次 reviewed_through> HEAD` 列出覆蓋層，再以 `upstream/main` 為底重套；不要用 `--allow-unrelated-histories`。

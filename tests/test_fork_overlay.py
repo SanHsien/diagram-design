@@ -22,6 +22,7 @@ UNGATED_WORKFLOWS = (
     "upstream-check.yml",
     "codeql.yml",
     "dependency-freshness.yml",
+    "ci-configuration.yml",
 )
 GATED_WORKFLOWS = ("pages.yml", "auto-bump.yml")
 
@@ -120,7 +121,7 @@ def test_readme_keeps_upstream_english_product_contract() -> None:
     assert "FORK.md" in readme
     assert "REVIEW.md" in readme
     assert "Editorial diagrams" in readme
-    assert "Editorial diagram types for Claude Code" in readme
+    assert "An agent skill that draws diagrams" in readme
     assert "MIT" in (ROOT / "LICENSE").read_text(encoding="utf-8")
 
 
@@ -156,25 +157,34 @@ def test_agents_overlay_points_at_fork_rules() -> None:
     assert "skills/diagram-design/" in agents
 
 
+def assert_actions_pinned_to_sha(text: str) -> None:
+    """Every ``uses:`` is a full commit SHA, never a floating tag.
+
+    Pinned as a property, not as particular SHAs: upstream bumps its pins
+    (and Dependabot bumps ours), and a literal SHA here turns every
+    legitimate bump into a test failure.
+    """
+    uses = re.findall(r"^\s*(?:-\s*)?uses:\s*(\S+)", text, flags=re.MULTILINE)
+    assert uses
+    for ref in uses:
+        if ref.startswith("./"):
+            continue
+        assert re.fullmatch(r"[\w./-]+@[0-9a-f]{40}", ref), ref
+
+
 def test_product_ci_is_not_official_repo_only() -> None:
     ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     assert "scripts/lint-skin.py" in ci
     assert "windows-latest" in ci
     assert "persist-credentials: false" in ci
     assert f"github.repository == '{OFFICIAL_REPO}'" not in ci
-    assert "actions/checkout@v7" not in ci
-    assert "actions/setup-python@v7" not in ci
-    assert "actions/setup-node@v7" not in ci
-    assert "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" in ci
-    assert "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97" in ci
-    assert "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020" in ci
+    assert_actions_pinned_to_sha(ci)
 
 
 def test_pages_workflow_pins_actions_and_drops_credentials() -> None:
     text = (ROOT / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
     assert "persist-credentials: false" in text
-    assert "actions/checkout@v6" not in text
-    assert "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" in text
+    assert_actions_pinned_to_sha(text)
 
 
 def test_script_close_regex_matches_html_parser_junk() -> None:
@@ -280,9 +290,13 @@ def test_overlay_docs_use_the_counted_type_total() -> None:
     notice = (ROOT / "NOTICE.md").read_text(encoding="utf-8")
     agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
 
-    assert "39 種" in fork
+    sync = (ROOT / "scripts" / "verify-docs-sync.py").read_text(encoding="utf-8")
+    count = re.search(r"^VISUAL_TYPE_COUNT = (\d+)$", sync, flags=re.MULTILINE)
+    assert count, "scripts/verify-docs-sync.py no longer defines VISUAL_TYPE_COUNT"
+    total = f"{count.group(1)} 種"
+    assert total in fork
     assert "editorial diagrams" in notice
-    assert "39 種" in agents
+    assert total in agents
 
 
 def test_no_tracked_git_symlinks() -> None:

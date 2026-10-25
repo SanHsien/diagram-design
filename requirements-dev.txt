@@ -1,2 +1,2 @@
 pytest>=9.1
-ruff>=0.16
+ruff>=0.16  # freshness-hold: fork gate selects only E9,F, stable across 0.16-0.17; floor kept as the compatibility promise
