@@ -11,7 +11,7 @@ src = ["tests", "tools"]
 # Syntax errors and pyflakes only. Do not reformat upstream HTML / skills.
 select = ["E9", "F"]
 
-# Upstream product code is kept byte-identical to upstream, so lint debt that
+# Upstream product code is kept identical to upstream (bar the fork fixes in DECISIONS), so lint debt that
 # lives there is recorded here instead of patched. Each entry names the finding;
 # remove the entry when upstream fixes it.
 [tool.ruff.lint.per-file-ignores]
