@@ -13,8 +13,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pull-requests: read
+  contents: read # checkout reads requirements-dev.txt
+  pull-requests: read # the step lists open Dependabot PRs
 
 concurrency:
   group: dependency-freshness
