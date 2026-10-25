@@ -248,12 +248,13 @@ PR 在這裡不可能是在修「本 fork 才有的缺陷」——採用它等�
 
 上游新增檔的取捨：`CLAUDE.md`（`@AGENTS.md` 匯入行）不收，repo 只用 `AGENTS.md`；`.github/CODEOWNERS`（`* @cathrynlavery`）與 `.github/FUNDING.yml`（作者贊助按鈕）屬上游作者，不收；`.github/workflows/ci-configuration.yml`（zizmor 稽核 `.github/**`）收；`.maintainer-policy.json`、`.qoder-plugin/`、`PRIVACY.md` 隨產品樹收。
 
-### 本 fork 對上游的分歧（產品碼 3 組共 5 個檔，加 1 項設定；皆未回貢）
+### 本 fork 對上游的分歧（產品碼 5 組 8 個檔，加 1 項設定；皆未回貢）
 
-1. `scripts/lint-skin.py`、`scripts/test-verify-motion.py`、`scripts/test-lint-a11y.py`：`</script\s*>` → `</script\b[^>]*>`（08-28 起；上游至 0b9b10c 仍是 `\s*`）。
+1. `scripts/lint-skin.py`、`scripts/test-verify-motion.py`、`scripts/test-lint-a11y.py`、`scripts/test-export-wait.py`（後者是本輪上游新檔，CodeQL `py/bad-tag-filter`）：`</script\s*>` → `</script\b[^>]*>`（08-28 起；上游至 0b9b10c 仍是 `\s*`）。
 2. `scripts/plugin_version_history.py`：錯誤訊息的路徑改 `as_posix()`。Windows 上印成 `.codex-plugin\plugin.json`，`scripts/test-plugin-package.py` 比對正斜線而失敗。
 3. `scripts/test-verify-doctor.py`：`tasklist` 輸出加 `errors="replace"`。繁中 Windows 的 `tasklist` 是 cp950，`PYTHONUTF8=1`（本 fork 文件要求設的）下以 UTF-8 解碼會丟 `UnicodeDecodeError`，`stdout` 變 `None`。
-4. `pyproject.toml` 的 `per-file-ignores`：上游 4 個檔有 5 個 pyflakes 發現（`F841`、`F541`、`F811`×2、`F821` 的 `NoReturn` 只用在註解），產品檔保持與上游逐位元組相同，改在設定檔記錄；上游修掉就刪該行。
+4. `scripts/verify-excalidraw-import.py`：迴圈變數 `secret` → `canary`（PR #1，擋 CodeQL `py/clear-text-logging-sensitive-data`）。壓縮後的歷史裡這筆在 squash commit 內，第一次同步誤取上游而漏掉，後由 main 上的 code scanning 告警 #5 發現並補回。
+5. `pyproject.toml` 的 `per-file-ignores`：上游 4 個檔有 5 個 pyflakes 發現（`F841`、`F541`、`F811`×2、`F821` 的 `NoReturn` 只用在註解），產品檔保持與上游逐位元組相同，改在設定檔記錄；上游修掉就刪該行。
 
 PLAYBOOK §2 判準六的表格寫 `diagram-design` 分歧產品檔為 0，這是 08-28 之前的狀態；實際上第 1 項早就存在。
 
@@ -282,3 +283,9 @@ Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--
 
 - 依賴新鮮度：`ruff>=0.16` 對 PyPI 的 0.17.2。fork 的 gate 只選 `E9,F`，兩個版本行為相同，下限是相容性承諾，故在宣告行寫 `# freshness-hold:`，沒有調高下限。
 - 本機驗證沒跑到的項目（沒裝 Playwright 瀏覽器）：`lint-render.py`、`verify-excalidraw-import.py` 與其測試、`test-export-wait.py`，交給 CI 的 Ubuntu／Windows job。
+
+### 同日補記：Pillow 與告警
+
+- 同步帶進上游的 `.github/ci/python/uv.lock`（`pillow==12.1.1`），Dependabot 立刻回報 118 筆 Pillow 告警（59 個 GHSA，pyproject 與 uv.lock 兩個 manifest 各一份；修補版皆 ≤13.0.0，含 critical），且 Dependabot 的 uv 安全更新工作以 `Bad Request` 失敗、開不出 PR。依 PLAYBOOK §1，安全理由可以調高：`pyproject.toml` 與 `uv.lock` 改 `pillow==13.0.0`（`uv lock --upgrade-package`），`CONTRIBUTING.md` 的兩處版本字樣同步；`test-build-readme-thumbs.py` 與 `build-readme-thumbs.py --check` 在 13.0.0 下通過（46 張縮圖）。
+- 同步前沒查「上游新增的依賴鎖檔會帶進哪些告警」。下次整批同步後先查 `dependabot/alerts` 與 `code-scanning/alerts`。
+- code scanning #6（`mermaid_extract.py` 的箭頭正則被 `py/bad-tag-filter` 當成 HTML 標籤過濾）是誤報：該正則比對 Mermaid 連線運算子，不是 HTML。以 `false positive` dismiss 並附此說明。

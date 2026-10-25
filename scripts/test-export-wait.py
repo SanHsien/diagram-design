@@ -368,7 +368,7 @@ def require_static_motion_frame(exporter, tmp: Path) -> None:
         raise AssertionError("motion captures from the same static source are not identical")
 
     # A broken controller must fail rather than silently capture hidden steps.
-    broken = re.sub(r"<script\b[^>]*>.*?</script>", "", source, flags=re.I | re.S)
+    broken = re.sub(r"<script\b[^>]*>.*?</script\b[^>]*>", "", source, flags=re.I | re.S)
     broken = broken.replace('data-frame="static" data-static-frame=', 'data-frame="start" data-static-frame=', 1)
     src.write_text(broken, encoding="utf-8")
     never = tmp / "incomplete.png"
