@@ -301,7 +301,7 @@ Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--
 | PR | 狀態 | 結論與證據 |
 |---|---|---|
 | #477、#480 | MERGED | 已在 commit 軸 |
-| #479 `0b7c5be` | OPEN | **採（移植）**。缺陷在本 fork 存在：`flowchart LR\n  user-profile\n` 以 base 的 `mermaid_extract.py` 執行得 `malformed edge at line 2`（連字號節點 id 被當成壞掉的邊），改後得 3 個節點。`_edge_operators` 的 x／o 箭頭改為需兩個以上連線字元、`_parse_flowchart` 的 `-.` 補跳脫並擋 `-x`／`=o` 單字元連線。與已同步的 #458 在 `verify-mermaid-import.py`、`import-mermaid.md` 有相鄰衝突，兩邊都保留手動合併；`verify-mermaid-import.py` 全綠 |
+| #479 `0b7c5be` | OPEN | **採（移植）**。缺陷在本 fork 存在：`flowchart LR\n  user-profile\n` 以 base 的 `mermaid_extract.py` 執行得 `malformed edge at line 2`（連字號節點 id 被當成壞掉的邊），改後得 1 個節點（連同 `A --> B` 的測試案例為 3 個）。`_edge_operators` 的 x／o 箭頭改為需兩個以上連線字元、`_parse_flowchart` 的 `-.` 補跳脫並擋 `-x`／`=o` 單字元連線。與已同步的 #458 在 `verify-mermaid-import.py`、`import-mermaid.md` 有相鄰衝突，兩邊都保留手動合併；`verify-mermaid-import.py` 全綠 |
 | #478 `d447c72` | OPEN | 不單獨採：改的是 #479 同一行（`-.` → `-\.`），#479 為超集 |
 | #483 `f395d28` | OPEN | **採**，對應 issue #482。`example-high-level-vertical.html` 兩則註解的 `color override:` 改寫，加入 `scripts/test-install-scan.py`（複製 Hermes 的 `html_comment_injection` 規則掃整個 skill，287 檔 0 命中）與 CI／CONTRIBUTING／`.maintainer-policy.json` 登記。排除其 `CHANGELOG.md` 行 |
 | #481 `188e4b9` | OPEN | **延後**。新增 `arrow-focal` marker 並把三個 DP integration 範例的 primary 連線改用它；`focal_accent` 預設等於 `accent`，預設輸出視覺不變，只有自訂 `focal_accent` 時才有差。動到 3 個範例 HTML 與 type 規格（5→6 個 marker），會牽動螢幕截圖與規格計數驗證。觸發條件：上游合併後隨下次同步採用，或本 fork 開始使用自訂 `focal_accent` |
