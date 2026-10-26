@@ -15,8 +15,14 @@ from pathlib import Path
 from urllib.parse import unquote
 
 ROOT = Path(__file__).resolve().parent.parent
-LINK_PATTERN = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
-IMAGE_PATTERN = re.compile(r"!\[[^\]]*\]\(([^)]+)\)")
+# CommonMark inline destination: the `<...>` form, or a run of non-space
+# characters in which parentheses balance one level deep; an optional title
+# ("t", 't' or (t)) may follow.
+_DESTINATION = r"(<[^<>\n]*>|(?:[^\s()]|\([^\s()]*\))+)"
+_TITLE = r"""(?:\s+(?:"[^"]*"|'[^']*'|\([^()]*\)))?"""
+LINK_PATTERN = re.compile(r"\[[^\]]*\]\(\s*" + _DESTINATION + _TITLE + r"\s*\)")
+IMAGE_PATTERN = re.compile(r"!\[[^\]]*\]\(\s*" + _DESTINATION + _TITLE + r"\s*\)")
+FENCE_PATTERN = re.compile(r"(?ms)^[ \t]*(```|~~~).*?^[ \t]*\1[^\n]*$")
 HTML_SRC_PATTERN = re.compile(r"""(?is)<img[^>]+src=["']([^"']+)["']""")
 SKIP_PREFIXES = ("http://", "https://", "mailto:", "tel:", "#")
 SKIP_NAMES = {
@@ -67,7 +73,8 @@ def _missing_relative(path: Path, target: str) -> str | None:
 
 def check_document(path: Path) -> list[str]:
     problems: list[str] = []
-    text = path.read_text(encoding="utf-8")
+    # Fenced blocks show link syntax as an example; they are not links to resolve.
+    text = FENCE_PATTERN.sub("", path.read_text(encoding="utf-8"))
     for pattern in (LINK_PATTERN, IMAGE_PATTERN, HTML_SRC_PATTERN):
         for match in pattern.finditer(text):
             missing = _missing_relative(path, match.group(1))

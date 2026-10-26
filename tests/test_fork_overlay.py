@@ -310,3 +310,52 @@ def test_no_tracked_git_symlinks() -> None:
     for line in result.stdout.splitlines():
         mode = line.split(None, 1)[0]
         assert mode != "120000", line
+
+
+@pytest.mark.parametrize(
+    "link",
+    [
+        '[doc](target.md "A title")',
+        "[doc](target.md 'A title')",
+        "[doc](<target.md> \"A title\")",
+        "[doc](<with space.md>)",
+        "[doc](paren_(1).md)",
+    ],
+)
+def test_check_links_accepts_valid_markdown_link_syntax(
+    link: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A title, angle brackets and balanced parens are part of the link
+    destination syntax; none of them make the target missing."""
+    (tmp_path / "target.md").write_text("x", encoding="utf-8")
+    (tmp_path / "with space.md").write_text("x", encoding="utf-8")
+    (tmp_path / "paren_(1).md").write_text("x", encoding="utf-8")
+    doc = tmp_path / "doc.md"
+    doc.write_text(link + "\n", encoding="utf-8")
+    monkeypatch.setattr(check_links, "ROOT", tmp_path.resolve())
+
+    assert check_links.check_document(doc) == []
+
+
+def test_check_links_still_flags_a_missing_target_with_a_title(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    doc = tmp_path / "doc.md"
+    doc.write_text('[doc](gone.md "A title")\n', encoding="utf-8")
+    monkeypatch.setattr(check_links, "ROOT", tmp_path.resolve())
+
+    problems = check_links.check_document(doc)
+    assert len(problems) == 1 and "gone.md" in problems[0]
+
+
+def test_check_links_ignores_links_shown_inside_code_fences(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A fenced example is documentation of syntax, not a link to resolve."""
+    doc = tmp_path / "doc.md"
+    doc.write_text(
+        "```md\n[example](does-not-exist.md)\n```\n", encoding="utf-8"
+    )
+    monkeypatch.setattr(check_links, "ROOT", tmp_path.resolve())
+
+    assert check_links.check_document(doc) == []
