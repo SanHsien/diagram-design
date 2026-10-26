@@ -289,3 +289,28 @@ Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--
 - 同步帶進上游的 `.github/ci/python/uv.lock`（`pillow==12.1.1`），Dependabot 立刻回報 118 筆 Pillow 告警（59 個 GHSA，pyproject 與 uv.lock 兩個 manifest 各一份；修補版皆 ≤13.0.0，含 critical），且 Dependabot 的 uv 安全更新工作以 `Bad Request` 失敗、開不出 PR。依 PLAYBOOK §1，安全理由可以調高：`pyproject.toml` 與 `uv.lock` 改 `pillow==13.0.0`（`uv lock --upgrade-package`），`CONTRIBUTING.md` 的兩處版本字樣同步；`test-build-readme-thumbs.py` 與 `build-readme-thumbs.py --check` 在 13.0.0 下通過（46 張縮圖）。
 - 同步前沒查「上游新增的依賴鎖檔會帶進哪些告警」。下次整批同步後先查 `dependabot/alerts` 與 `code-scanning/alerts`。
 - code scanning #6（`mermaid_extract.py` 的箭頭正則被 `py/bad-tag-filter` 當成 HTML 標籤過濾）是誤報：該正則比對 Mermaid 連線運算子，不是 HTML。以 `false positive` dismiss 並附此說明。
+
+## 2026-10-26：第五輪上游審查（commit 至 10cfad6、PR 至 #483、issue 至 #482）
+
+上一輪水位 `0b9b10c` 之後上游又進 16 個 commit（8 筆 `chore(release)` 版號 bump、8 筆修正）、6 個 PR（#477–#481、#483）、1 個 issue（#482）。判準八檢查：對 `0b9b10c..10cfad6` 與 #478／#479／#481／#483 目前的 head diff 掃隱藏內容（行內 40 字元以上空白後接內容、`eval`／`new Function`／`globalThis`、100 字元以上 base64 樣式、500 字元以上單行），只命中 `import-mermaid.md` 一行 600+ 字元的文件說明段落（純文字，無程式），其餘 0 筆。
+
+### commit 軸（16 筆）全採
+以 `git diff 0b9b10c upstream/main` 套用，只排除上游 `CHANGELOG.md` 一行（本 fork 的 `CHANGELOG.md` 是自己的維護史）。涵蓋：#440 self-check 拒收提前結束的文件（`self_check.py`＋測試）、#458 Mermaid flowchart 邊 ID、#470 heatmap 引號內的 `>`、#471 計入被丟棄的 config 指令、#472 保留 sequence autonumber、#464／#480 文件修正、#477 ci.yml 的 setup-python 註解、ci.yml 新增 `Verify Mermaid import` 步驟、plugin manifests 2.6.120→2.6.128。
+
+### PR 軸
+| PR | 狀態 | 結論與證據 |
+|---|---|---|
+| #477、#480 | MERGED | 已在 commit 軸 |
+| #479 `0b7c5be` | OPEN | **採（移植）**。缺陷在本 fork 存在：`flowchart LR\n  user-profile\n` 以 base 的 `mermaid_extract.py` 執行得 `malformed edge at line 2`（連字號節點 id 被當成壞掉的邊），改後得 3 個節點。`_edge_operators` 的 x／o 箭頭改為需兩個以上連線字元、`_parse_flowchart` 的 `-.` 補跳脫並擋 `-x`／`=o` 單字元連線。與已同步的 #458 在 `verify-mermaid-import.py`、`import-mermaid.md` 有相鄰衝突，兩邊都保留手動合併；`verify-mermaid-import.py` 全綠 |
+| #478 `d447c72` | OPEN | 不單獨採：改的是 #479 同一行（`-.` → `-\.`），#479 為超集 |
+| #483 `f395d28` | OPEN | **採**，對應 issue #482。`example-high-level-vertical.html` 兩則註解的 `color override:` 改寫，加入 `scripts/test-install-scan.py`（複製 Hermes 的 `html_comment_injection` 規則掃整個 skill，287 檔 0 命中）與 CI／CONTRIBUTING／`.maintainer-policy.json` 登記。排除其 `CHANGELOG.md` 行 |
+| #481 `188e4b9` | OPEN | **延後**。新增 `arrow-focal` marker 並把三個 DP integration 範例的 primary 連線改用它；`focal_accent` 預設等於 `accent`，預設輸出視覺不變，只有自訂 `focal_accent` 時才有差。動到 3 個範例 HTML 與 type 規格（5→6 個 marker），會牽動螢幕截圖與規格計數驗證。觸發條件：上游合併後隨下次同步採用，或本 fork 開始使用自訂 `focal_accent` |
+
+### issue 軸
+#482（Hermes 安裝被 `html_comment_injection` 誤判擋下）：由 #483 處理。#475（primary connector 的 marker 恆為 `accent`）：與 #481 同一缺陷，一併延後。
+
+### 分歧清單新增
+`ci.yml` 與 `mermaid_extract.py`／`verify-mermaid-import.py`／`import-mermaid.md` 現在含上游**尚未合併**的 #479、`ci.yml`／`CONTRIBUTING.md`／`.maintainer-policy.json`／`scripts/test-install-scan.py`／`example-high-level-vertical.html` 含 #483。上游合併（或改採不同修法）後下次同步會有衝突，屆時以上游版本為準並刪除本段。
+
+### 驗證
+`verify-mermaid-import.py`、`test-self-check.py`、`test-verify-heatmap.py`、`verify-heatmap.py`、`verify-docs-sync.py`、`test-lint-a11y.py`、`test-plugin-package.py`、`test-install-scan.py`、`lint-skin.py --all --baseline`、`pytest tests` 全綠。`test-verify-docs-sync.py` 在本機 CRLF 檢出下失敗，base 上同樣失敗（上游 #465，已知，見第四輪）。沒裝 Playwright 瀏覽器，像素類檢查交給 CI。

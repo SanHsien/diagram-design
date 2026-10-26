@@ -1,10 +1,10 @@
 {
   "repo": "https://github.com/cathrynlavery/diagram-design.git",
   "branch": "main",
-  "reviewed_through": "0b9b10cab3dbf695642fa1a6c4b4f60df9083689",
-  "reviewed_date": "2026-10-25",
+  "reviewed_through": "10cfad6a7be7f734a92d3d628e5fa344685d4f01",
+  "reviewed_date": "2026-10-26",
   "decision_log": "docs/fork/DECISIONS.md",
-  "notes": "2026-09-13：第二輪 triage 與同步完成。合併上游至 8d8b299（#216，版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）以及 ADR 0009 自動版號架構。ci.yml 對齊 upstream ADR 0009，auto-bump.yml 加上 official guard。修復 check_upstream_updates.py 在 Windows CP950 下的 Unicode 編碼崩潰。PR 水位 → 222、issue 水位 → 220。 2026-09-30：第三輪審查至 57148ac／PR #263／issue #262；採用 #224/#223/#230/#260，其餘見 DECISIONS。 2026-10-25：第四輪整批同步至 0b9b10c（版本 2.6.120）／PR #472／issue #476；以上游樹為底重套覆蓋層，見 DECISIONS。",
-  "reviewed_pr_through": 472,
-  "reviewed_issue_through": 476
+  "notes": "2026-09-13：第二輪 triage 與同步完成。合併上游至 8d8b299（#216，版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）以及 ADR 0009 自動版號架構。ci.yml 對齊 upstream ADR 0009，auto-bump.yml 加上 official guard。修復 check_upstream_updates.py 在 Windows CP950 下的 Unicode 編碼崩潰。PR 水位 → 222、issue 水位 → 220。 2026-09-30：第三輪審查至 57148ac／PR #263／issue #262；採用 #224/#223/#230/#260，其餘見 DECISIONS。 2026-10-25：第四輪整批同步至 0b9b10c（版本 2.6.120）／PR #472／issue #476；以上游樹為底重套覆蓋層，見 DECISIONS。 2026-10-26：第五輪審查至 10cfad6（版本 2.6.128）／PR #483／issue #482；採 16 個 commit 與未合併的 #479、#483，見 DECISIONS。",
+  "reviewed_pr_through": 483,
+  "reviewed_issue_through": 482
 }
