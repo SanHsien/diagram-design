@@ -113,3 +113,25 @@ def test_upstream_slug(url, expected):
 def test_shipped_baseline_matches_the_documented_upstream():
     baseline = checker.load_baseline()
     assert checker.upstream_slug(baseline["repo"]) is not None
+
+
+def test_missing_gh_binary_reports_unchecked_rather_than_crashing(monkeypatch):
+    """No `gh` on PATH is the same "could not answer" as a non-zero exit."""
+
+    def runner(args, **kwargs):
+        raise FileNotFoundError(2, "gh not found")
+
+    monkeypatch.setattr(checker.subprocess, "run", runner)
+    assert checker.collect_new_tickets(BASELINE, "pr") is None
+
+
+def test_missing_git_binary_is_an_upstream_check_error(monkeypatch, tmp_path):
+    """The CLI maps UpstreamCheckError to exit 2 plus a report; a bare
+    FileNotFoundError would escape that handler as a traceback."""
+
+    def runner(args, **kwargs):
+        raise FileNotFoundError(2, "git not found")
+
+    monkeypatch.setattr(checker.subprocess, "run", runner)
+    with pytest.raises(checker.UpstreamCheckError):
+        checker.run_git(["status"], tmp_path)
