@@ -314,3 +314,45 @@ Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--
 
 ### 驗證
 `verify-mermaid-import.py`、`test-self-check.py`、`test-verify-heatmap.py`、`verify-heatmap.py`、`verify-docs-sync.py`、`test-lint-a11y.py`、`test-plugin-package.py`、`test-install-scan.py`、`lint-skin.py --all --baseline`、`pytest tests` 全綠。`test-verify-docs-sync.py` 在本機 CRLF 檢出下失敗，base 上同樣失敗（上游 #465，已知，見第四輪）。沒裝 Playwright 瀏覽器，像素類檢查交給 CI。
+
+
+## 2026-10-28：第六輪上游審查（commit 至 0cf73c3、PR 至 #486、issue 至 #489）
+
+上一輪水位 `10cfad6` 之後上游進 16 個 commit（8 筆 `chore(release)` 版號 bump 2.6.129 至 2.6.136、8 筆修正或功能）、2 個 PR（#484、#486）、4 個 issue（#485、#487、#488、#489）。`Upstream check` 紅燈即由這些而來。
+
+判準六先驗證：`git diff 10cfad6 HEAD` 顯示本 fork 相對上一輪水位的產品碼分歧仍是上列 5 組（`</script`、`as_posix()`、`tasklist` 的 `errors="replace"`、`canary` 改名、`pyproject.toml` 的 `per-file-ignores`）加上第五輪移植的 #479（`mermaid_extract.py`、`verify-mermaid-import.py`、`import-mermaid.md`）。本輪上游只動 `scripts/`、`skills/diagram-design/` 下的另一批檔案，與這些分歧不重疊，所以 PR／issue 走結構性論證，只查 Windows／CJK 類。
+
+判準八：對 `10cfad6..0cf73c3` 的整份 diff、以及 #478／#479／#481／#486 目前 head 的 diff，掃行內 40 字元以上空白後接內容、`eval`／`new Function`／`globalThis`／`atob`／`fromCharCode`、100 字元以上 base64 樣式、500 字元以上單行。命中的 6 行全是文件或 manifest 說明文字（`.codex-plugin/plugin.json` 的 longDescription、`CONTRIBUTING.md` 與 `SKILL.md` 的描述、三個 reference 文件段落），另有 PNG 二進位區塊；新增的 `verify-box-plot.py`、`test-verify-box-plot.py` 對 `subprocess`／`socket`／`urllib`／`exec`／`eval` 掃描，只有測試以 `subprocess.run` 跑隨附範例。#481 的 head 自上一輪看過的 `188e4b9` 變成 `2ce275a8e7`（有新 commit），已對目前 head 重掃，0 命中。
+
+### commit 軸（16 筆）全採
+以 `git diff 10cfad6 upstream/main` 做 3-way 套用，排除上游 `CHANGELOG.md` 一行（本 fork 的 `CHANGELOG.md` 是自己的維護史），43 個檔中沒有衝突。
+
+| 上游 commit | 內容 | 本 fork 處理 |
+|---|---|---|
+| `3fdf8c2` #483 | 重寫會被 Hermes `html_comment_injection` 擋下的註解，新增 `scripts/test-install-scan.py` | 第五輪已移植未合併版（head `f395d28`）。上游合併版與 head 相同；`ci.yml`、`.maintainer-policy.json`、`scripts/test-install-scan.py`、`example-high-level-vertical.html` 現在與上游逐位元組相同，第五輪「分歧清單新增」中這四個檔的段落作廢 |
+| `84886eb` #469 | Excalidraw 匯入回報最外層群組 | 採。`verify-excalidraw-import.py` 的 `canary` 改名保留（分歧第 4 項） |
+| `17686b9` #468 | draw.io 標籤保留角括號 | 採 |
+| `7bf9445` #435 | 散佈圖新增 box plot 變體（`verify-box-plot.py` 1705 行、測試 144 案、3 個範例） | 採。它是 `scatter` 的變體，型別計數維持 45（`verify-docs-sync.py` 通過）。`verify-box-plot.py --all` 通過 |
+| `1677a5c` #481 | DP integration 的 primary 連線改用 `focal_accent` 箭頭 | 採，第五輪「延後」的觸發條件（上游合併）已成立。同時收掉 issue #475 |
+| `fbdbd83` #465 | `test-verify-docs-sync` 在 CRLF 檢出下比對換行 | 採。這是第四輪點名的 Windows 類項目：本 worktree `core.autocrlf=true`，`test-verify-docs-sync.py` 現在通過（第五輪在同一環境失敗） |
+| `d39a365` #484 | `verify-geometry` 讀單引號 SVG 屬性 | 採 |
+| `0b5b3bc` #467 | `verify-exploded` 拒絕投影幾何上的 CSS transform | 採 |
+| 8 筆 `chore(release)` | 外掛 manifests 2.6.129 至 2.6.136 | 採 |
+
+### PR 軸
+| PR | 狀態 | 結論與證據 |
+|---|---|---|
+| #484、#481、#483、#465 | MERGED | 已在 commit 軸 |
+| #486 `0eb47d9482`（jolinin） | OPEN | **延後，並以 `monitored` 釘住**。改 `export_svg.py`（`normalize_html_entities` 加數字字元參照，+67／-9，含 README 與 `export.md`）。缺陷在本 fork 存在，實測 `export_svg_document` 對 `&#128;` 得 ``（瀏覽器是 `€`），`&#65z`（無分號）直接以 XML 不合法報錯；但範圍窄：CJK 的 `&#20013;`、`&#x4E2D;` 都正確得 `中`，所以不屬於 CJK 類；受影響的只有 U+0080 至 U+009F 與無分號寫法。本 fork 的 skill 範例、文件不含這類參照（grep `&#(x8x|1[2-5]x)` 只命中 `export_svg.py` 與其測試自身）。作者是外部貢獻者、PR 未經上游維護者審過，且 67 行改寫一個 regex 狀態機，邏輯尚未穩定。觸發條件：上游合併、或 head 變動（`monitored` 會報）、或本 fork 遇到實際輸出 `&#12x;` 的圖 |
+| #479 `0b7c5be522` | OPEN | 維持第五輪「採（移植）」。上游 head 未動；本 fork 的移植仍在（`mermaid_extract.py`），套用本輪 diff 時無衝突。補上 `monitored` 釘住，上游合併或改 head 時報告會提醒（上一輪沒有釘，等於合併後無人通知） |
+| #478 `d447c72ba1` | OPEN | 維持「不單獨採」（#479 的超集）；同樣釘住 |
+
+### issue 軸
+| Issue | 狀態 | 結論與證據 |
+|---|---|---|
+| #485 | CLOSED（not planned，作者 thegodlovestome-dev） | 標題「好」、內文空白，上游維護者以「沒有描述」關閉。無可行動內容，不引進 |
+| #487 | OPEN（cathrynlavery） | `verify-box-plot.py` 的 8 類剩餘漏洞（隱藏標籤、`stroke="none"` 的中位線、CSS 動畫結尾 opacity 0、布林屬性、其他色彩記法、`+`／`~` 選擇器等）。對象是本輪才進來的新檢查器，缺陷與本 fork 相同（逐位元組同上游），非 Windows／CJK 類，且上游已有人認領第 2 項（Ethereal49）。等上游修；觸發條件：`verify-box-plot.py` 在上游有 commit 時隨整批同步取得 |
+| #488 Requirement traceability 型別提案、#489 Event modeling 型別提案 | CLOSED（not planned，YalcinkayaE，同日關閉） | 新圖表型別提案，上游已拒收；新增型別是上游策展範圍（比照第四輪「新圖表型別，不 fork-ahead」），不引進 |
+
+### 驗證
+`verify-docs-sync.py`、`test-verify-docs-sync.py`、`test-verify-box-plot.py`（144 案）、`test-verify-geometry.py`、`verify-geometry.py --all`（220 檔 0 finding）、`test-verify-exploded.py`、`verify-exploded.py --all`、`test-install-scan.py`（290 檔）、`test-maintainer-policy.py`、`test-verify-beeswarm.py`、`test-plugin-package.py`、`verify-drawio-import.py`、`verify-mermaid-import.py`、`verify-screenshot-freshness.py`（45 個來源）、`lint-skin.py --all --baseline`（0 finding）、`test-export-svg-standalone.py`、`verify-box-plot.py --all` 全綠。`verify-excalidraw-import.py` 的邏輯段全過，最後的瀏覽器渲染段因本機沒裝 Playwright Chromium 失敗（與第四、五輪相同），交 CI。

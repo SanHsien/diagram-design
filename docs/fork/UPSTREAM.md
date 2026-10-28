@@ -109,3 +109,9 @@ overlay-only、產品原始碼與上游逐位元組相同，所以被上游拒�
 
 - commit：`0b9b10c..10cfad6` 共 16 筆（版本 2.6.121 至 2.6.128）全採，以 `git diff` 套用（歷史無共同祖先，不用 merge）。
 - PR 水位：**#483**；issue 水位：**#482**。未合併的 #479（Mermaid 連字號節點）與 #483（Hermes 安裝掃描）移植進來；#478 為 #479 的子集不收；#481／#475（DP integration 的 `focal_accent` 箭頭）延後。理由與證據見 [`DECISIONS.md`](DECISIONS.md) 2026-10-26。
+
+
+## 2026-10-28：第六輪審查，水位推進到 `0cf73c3fcc56667ad91a9a04c439ac6ccfabc9d1`
+
+- commit：`10cfad6..0cf73c3` 共 16 筆（版本 2.6.129 至 2.6.136）全採，以 `git diff` 3-way 套用（歷史無共同祖先，不用 merge），排除上游 `CHANGELOG.md` 一行。
+- PR 水位：**#486**；issue 水位：**#489**。第五輪移植的 #483、延後的 #481 已由上游合併並隨 commit 軸採用；#486（數字字元參照）延後。#478／#479／#486 用 `monitored` 釘住 head，上游合併或改動時報告會提醒。理由與證據見 [`DECISIONS.md`](DECISIONS.md) 2026-10-28。
