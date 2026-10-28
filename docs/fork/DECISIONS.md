@@ -320,7 +320,7 @@ Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--
 
 上一輪水位 `10cfad6` 之後上游進 16 個 commit（8 筆 `chore(release)` 版號 bump 2.6.129 至 2.6.136、8 筆修正或功能）、2 個 PR（#484、#486）、4 個 issue（#485、#487、#488、#489）。`Upstream check` 紅燈即由這些而來。
 
-判準六先驗證：`git diff 10cfad6 HEAD` 顯示本 fork 相對上一輪水位的產品碼分歧仍是上列 5 組（`</script`、`as_posix()`、`tasklist` 的 `errors="replace"`、`canary` 改名、`pyproject.toml` 的 `per-file-ignores`）加上第五輪移植的 #479（`mermaid_extract.py`、`verify-mermaid-import.py`、`import-mermaid.md`）。本輪上游只動 `scripts/`、`skills/diagram-design/` 下的另一批檔案，與這些分歧不重疊，所以 PR／issue 走結構性論證，只查 Windows／CJK 類。
+判準六先驗證：`git diff 10cfad6 HEAD` 顯示本 fork 相對上一輪水位的產品碼分歧仍是上列 5 組（`</script\b`、`as_posix()`、`tasklist` 的 `errors="replace"`、`canary` 改名、`pyproject.toml` 的 `per-file-ignores`）加上第五輪移植的 #479（`mermaid_extract.py`、`verify-mermaid-import.py`、`import-mermaid.md`）。本輪上游只動 `scripts/`、`skills/diagram-design/` 下的另一批檔案，與這些分歧不重疊，所以 PR／issue 走結構性論證，只查 Windows／CJK 類。
 
 判準八：對 `10cfad6..0cf73c3` 的整份 diff、以及 #478／#479／#481／#486 目前 head 的 diff，掃行內 40 字元以上空白後接內容、`eval`／`new Function`／`globalThis`／`atob`／`fromCharCode`、100 字元以上 base64 樣式、500 字元以上單行。命中的 6 行全是文件或 manifest 說明文字（`.codex-plugin/plugin.json` 的 longDescription、`CONTRIBUTING.md` 與 `SKILL.md` 的描述、三個 reference 文件段落），另有 PNG 二進位區塊；新增的 `verify-box-plot.py`、`test-verify-box-plot.py` 對 `subprocess`／`socket`／`urllib`／`exec`／`eval` 掃描，只有測試以 `subprocess.run` 跑隨附範例。#481 的 head 自上一輪看過的 `188e4b9` 變成 `2ce275a8e7`（有新 commit），已對目前 head 重掃，0 命中。
 
@@ -343,7 +343,7 @@ Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--
 | PR | 狀態 | 結論與證據 |
 |---|---|---|
 | #484、#481、#483、#465 | MERGED | 已在 commit 軸 |
-| #486 `0eb47d9482`（jolinin） | OPEN | **延後，並以 `monitored` 釘住**。改 `export_svg.py`（`normalize_html_entities` 加數字字元參照，+67／-9，含 README 與 `export.md`）。缺陷在本 fork 存在，實測 `export_svg_document` 對 `&#128;` 得 ``（瀏覽器是 `€`），`&#65z`（無分號）直接以 XML 不合法報錯；但範圍窄：CJK 的 `&#20013;`、`&#x4E2D;` 都正確得 `中`，所以不屬於 CJK 類；受影響的只有 U+0080 至 U+009F 與無分號寫法。本 fork 的 skill 範例、文件不含這類參照（grep `&#(x8x|1[2-5]x)` 只命中 `export_svg.py` 與其測試自身）。作者是外部貢獻者、PR 未經上游維護者審過，且 67 行改寫一個 regex 狀態機，邏輯尚未穩定。觸發條件：上游合併、或 head 變動（`monitored` 會報）、或本 fork 遇到實際輸出 `&#12x;` 的圖 |
+| #486 `0eb47d9482`（jolinin） | OPEN | **延後，並以 `monitored` 釘住**。改 `export_svg.py`（`normalize_html_entities` 加數字字元參照，+67／-9，含 README 與 `export.md`）。缺陷在本 fork 存在，實測 `export_svg_document` 對 `&#128;` 得 `\x80`（瀏覽器是 `€`），`&#65z`（無分號）直接以 XML 不合法報錯；但範圍窄：CJK 的 `&#20013;`、`&#x4E2D;` 都正確得 `中`，所以不屬於 CJK 類；受影響的只有 U+0080 至 U+009F 與無分號寫法。本 fork 的 skill 範例、文件不含這類參照（grep `&#(x8x|1[2-5]x)` 只命中 `export_svg.py` 與其測試自身）。作者是外部貢獻者、PR 未經上游維護者審過，且 67 行改寫一個 regex 狀態機，邏輯尚未穩定。觸發條件：上游合併、或 head 變動（`monitored` 會報）、或本 fork 遇到實際輸出 `&#12x;` 的圖 |
 | #479 `0b7c5be522` | OPEN | 維持第五輪「採（移植）」。上游 head 未動；本 fork 的移植仍在（`mermaid_extract.py`），套用本輪 diff 時無衝突。補上 `monitored` 釘住，上游合併或改 head 時報告會提醒（上一輪沒有釘，等於合併後無人通知） |
 | #478 `d447c72ba1` | OPEN | 維持「不單獨採」（#479 的超集）；同樣釘住 |
 
