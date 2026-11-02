@@ -742,8 +742,9 @@ def _edge_operators(text: str) -> list[_Operator]:
 
     # Mermaid keeps a single `-` inside a node id (`user-option`, `box-office`),
     # so an `x`/`o` head needs at least two link characters before it.
+    # A dotted link grows by dots: `-.->`, `-..->`, `-...->` and `-.-`, `-..-`.
     pattern = re.compile(
-        r"[xo][-=.]{2,}[xo]|<[-=.]+>|-+\.-+>|=+>|-+>|-{2,}[xo]|-+\.-+|={3,}|-{3,}|~{3,}"
+        r"[xo][-=.]{2,}[xo]|<[-=.]+>|-+\.+-+>|=+>|-+>|-{2,}[xo]|-+\.+-+|={3,}|-{3,}|~{3,}"
     )
     for match in pattern.finditer(mask):
         if any(start <= match.start() < end for start, end in occupied):

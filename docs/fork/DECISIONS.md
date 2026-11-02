@@ -356,3 +356,33 @@ Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--
 
 ### 驗證
 `verify-docs-sync.py`、`test-verify-docs-sync.py`、`test-verify-box-plot.py`（144 案）、`test-verify-geometry.py`、`verify-geometry.py --all`（220 檔 0 finding）、`test-verify-exploded.py`、`verify-exploded.py --all`、`test-install-scan.py`（290 檔）、`test-maintainer-policy.py`、`test-verify-beeswarm.py`、`test-plugin-package.py`、`verify-drawio-import.py`、`verify-mermaid-import.py`、`verify-screenshot-freshness.py`（45 個來源）、`lint-skin.py --all --baseline`（0 finding）、`test-export-svg-standalone.py`、`verify-box-plot.py --all` 全綠。`verify-excalidraw-import.py` 的邏輯段全過，最後的瀏覽器渲染段因本機沒裝 Playwright Chromium 失敗（與第四、五輪相同），交 CI。
+
+## 2026-11-02：第七輪上游審查（commit 無新增、PR 至 #500、issue 至 #500）
+
+上游 `main` 仍在 `0cf73c3`（commit 軸 0 筆）。紅燈來自 8 個新 PR（#490、#491、#492、#494、#495、#496、#498、#499，全 OPEN）、3 個新 issue（#493、#497、#500），以及 monitored #478 的 head 漂移（`d447c72` → `dde075d`）。
+
+判準六：`git diff upstream/main HEAD --stat -- skills scripts` 只有 #479 移植與五組既有分歧，所以 PR 走結構性論證，只查 Windows／CJK 類，再逐筆確認缺陷是否在本 fork 存在。判準八：8 個 PR 與 #478 目前 head 的整份 diff 掃 40 字元以上空白後接內容、`eval`／`new Function`／`globalThis`／`atob`／`fromCharCode`、100 字元以上 base64、500 字元以上單行。命中只有 #490 的兩行測試字串（`stroke-width="1.5" stroke-opacity="0"`）與 #491／#492／#498 的 manifest 或文件說明長句，無隱藏程式。
+
+### PR 軸
+| PR | 結論與證據 |
+|---|---|
+| #496 `4b4ee238d0`（Plastic-time，+53/-2） | **採（移植）**，屬 CJK 類。實測缺陷在本 fork：`excalidraw_extract.py` 對 `text:"資料庫伺\n服器"`、`originalText:"資料庫伺服器"` 的容器標籤輸出 `資料庫伺 · 服器`（Excalidraw 依方塊寬度對 CJK 逐字折行）。改為優先讀 `originalText`，無則退回 `text`；補 `check_wrapped_text`。 |
+| #495 `9b5d6e61c5`（Plastic-time，+18/-1） | **採（手動移植）**。實測 `A -..-> B` 在本 fork 得 `malformed edge at line 2`。上游 diff 與第五輪移植的 #479 在同一條正則相鄰衝突，沒照抄：在本 fork 已含 #479 的正則（`mermaid_extract.py:746`）上把兩處 `\.` 改 `\.+`，並保留 #479 的 `{2,}` 設計；測試案例照抄。 |
+| #494 `2627001b5b`（Plastic-time，+50/-1） | **採**。`classify_shape` 用 `raw.startswith(key)`，`tableRow` 因前綴 `table` 被歸為 table；改為先比完全相等再比前綴。diff 與本 fork 的 `drawio_extract.py` 乾淨套用，補 `check_table_rows`。 |
+| #478 `dde075ddd3` | 維持「不單獨採」。新 head（+24/-1）在 #479 的 `-\.` 之上加 `elif` 後備：長得像連線卻不是節點的行（`A- >B`）報 `malformed edge` 而非默默丟棄，並多一個測試。屬輸入驗證強化、非本 fork 的 Windows／CJK 類，且與 #479 同檔相鄰；重新釘到新 head，上游合併後以上游為準。 |
+| #490 `e5ef76de24`（+182/-3） | 延後並釘住。`verify-box-plot.py` 拒絕「繪製後什麼都不畫」的標記，對應 issue #487 列出的檢查器漏洞；是上游新檢查器的補強，本 fork 無依賴它的流程。觸發條件：上游合併。 |
+| #491 `5286cb21ff`、#492 `dee4f4ee50`（+705／+496） | 不採、釘住。新增 requirement diagram、event modeling 兩個圖表型別；對應 #488／#489 上游已以 not planned 關閉（見第六輪），型別新增是上游策展範圍。動到五份外掛 manifest、`ci.yml`、`verify-docs-sync.py`，型別計數會變。觸發條件：上游合併才跟。 |
+| #498 `944b5e7395`（+4053/-2） | 不採、釘住。新增 `--simplediagrams` 匯出（新腳本約 4000 行、改 SKILL.md、CI），超過小改範圍且為功能而非修正，也不屬 Windows／CJK 類。觸發條件：上游合併且維護者有使用 SimpleDiagrams。 |
+| #499（dependabot，+6/-6） | 不採。只升 `.github/workflows` 的 action 版本；本 fork 有自己的 `dependency-freshness.yml` 與 dependabot 設定，上游的 action 釘版不直接照搬。 |
+
+### issue 軸
+| Issue | 結論與證據 |
+|---|---|
+| #493 節點可拖曳 | 不處理。功能請求，輸出為靜態 HTML + SVG；上游未回應。 |
+| #497 更多內建視覺皮膚 | 不處理。功能請求，皮膚屬上游策展的設計系統；本 fork 的 `references/style-guide.md` 未偏離上游。 |
+| #500 ERD 圖表 | 不處理。新圖表型別請求，同第六輪 #488／#489 處理。 |
+
+### 本輪移植的尚未合併內容
+`excalidraw_extract.py`（#496）、`drawio_extract.py`（#494）、`mermaid_extract.py`（#495）與對應 `verify-*-import.py` 現在含上游**尚未合併**的 PR。上游合併（或改採不同修法）後下次同步會有衝突，屆時以上游版本為準並刪除本段。#494、#495、#496 與 #490、#491、#492、#498 都以 `monitored` 釘在審過的 head。
+
+Baseline 推進：`reviewed_pr_through` → 500、`reviewed_issue_through` → 500（`reviewed_through` 仍是 `0cf73c3`，上游沒有新 commit）；#478 重釘 `dde075d`。
