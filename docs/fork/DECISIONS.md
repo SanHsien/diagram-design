@@ -386,3 +386,41 @@ Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--
 `excalidraw_extract.py`（#496）、`drawio_extract.py`（#494）、`mermaid_extract.py`（#495）與對應 `verify-*-import.py` 現在含上游**尚未合併**的 PR。上游合併（或改採不同修法）後下次同步會有衝突，屆時以上游版本為準並刪除本段。#494、#495、#496 與 #490、#491、#492、#498 都以 `monitored` 釘在審過的 head。
 
 Baseline 推進：`reviewed_pr_through` → 500、`reviewed_issue_through` → 500（`reviewed_through` 仍是 `0cf73c3`，上游沒有新 commit）；#478 重釘 `dde075d`。
+
+## 2026-11-04：第八輪上游審查（commit 至 f24d98b、PR 至 #505、issue 至 #505）
+
+上一輪水位 `0cf73c3` 之後上游進 10 個 commit（5 筆 `chore(release)` 版號 bump 2.6.137 至 2.6.141、3 筆合併第七輪已移植的 #494／#495／#496、#502 listing URL、#501 ADR 0017）、4 個新 PR（#501、#502、#504、#505）、1 個新 issue（#503），以及 monitored 的 #490 head 漂移、#494／#495／#496 轉為 closed（已合併）。`Upstream check` 紅燈即由這些而來。
+
+判準六：`git diff HEAD upstream/main -- skills scripts` 只剩 #479 移植（`mermaid_extract.py` 正則與 `check_hyphenated_node_ids`）與五組既有分歧（`</script\b`、`as_posix()`、`errors="replace"`、`canary` 改名、`per-file-ignores`，見 2026-10-25）；#494／#495／#496 的合併版與本 fork 移植逐位元組相同（`drawio_extract.py`、`excalidraw_extract.py` 無差異）。判準八：`0cf73c3..f24d98b` 整份 diff、#504、#505 與 #490 目前 head 的 diff 掃同樣樣式，命中只有 #490 兩行測試字串（`stroke-opacity="0"`、`calc(1px + 1px)`），無隱藏程式。
+
+### commit 軸（10 筆）全採
+| 上游 commit | 內容 | 本 fork 處理 |
+|---|---|---|
+| `88028a8` #494、`81c6301` #495、`5928455` #496 | 第七輪已移植的匯入修正 | 已在本 fork，內容相同；第七輪「本輪移植的尚未合併內容」一段作廢（`mermaid_extract.py` 與上游的差異只剩 #479） |
+| `790e801` #502 | `.codex-plugin/plugin.json` 加 `supportURL`、`termsOfServiceURL` | 採。manifest 以上游為準，URL 指向上游 repo 是原作者的 listing 資訊 |
+| `eb1fded` #501 | 新增 `docs/adr/0017-openai-directory-snapshots.md`（proposed） | 採，保持 `docs/adr/` 與上游一致；只是上游維護者的 OpenAI 目錄提案，本 fork 不實作、不發布 |
+| 5 筆 `chore(release)` | 外掛 manifests 2.6.137 至 2.6.141 | 採 |
+
+### PR 軸
+| PR | 結論與證據 |
+|---|---|
+| #494、#495、#496 | MERGED，見 commit 軸；從 `monitored` 移除 |
+| #501、#502 | MERGED，見 commit 軸 |
+| #504 `2a5888b5b5`（GgauravJ05，+21/-7） | **延後並釘住**。讓 `mermaid_extract.py` 把舊的 `stateDiagram` 標頭當 `stateDiagram-v2` 讀。缺陷在本 fork 存在（舊標頭報 `unsupported diagram kind`），但屬功能放寬，非 Windows／CJK 類；外部貢獻者，作者自己也問 `statediagram` 列在 `UNSUPPORTED_KINDS` 是否刻意，上游尚未回答。觸發條件：上游合併或給出答覆 |
+| #505 `ff37f8ffb0`（GgauravJ05，+116/-13） | **延後並釘住**。讓 `mermaid_extract.py` 的 ER 圖接受實體別名（`p[Person] { ... }`）與加引號的名稱（`"Line Item"`）。屬 ER 語法放寬，非 Windows／CJK 類（Unicode 實體名已支援）；外部貢獻者、未經上游審過，且與 #504 同作者同檔。觸發條件：上游合併 |
+| #490 `7f9c002bbd` | 維持延後並重釘。新 head 只多三個 `Merge branch 'main'` commit，功能 commit 仍是審過的 `a9dffb1`、`e5ef76d` |
+| #478、#479、#486、#491、#492、#498 | head 與 state 未動，維持原判 |
+
+### issue 軸
+| Issue | 結論與證據 |
+|---|---|
+| #503 Support theme（生成後套用主題色） | 不處理。功能請求、內文只有一句，上游未回應；皮膚屬上游策展範圍（同第七輪 #497） |
+
+### CodeQL 告警 #9（`py/bad-tag-filter`，`mermaid_extract.py:747`）
+誤報，已 dismiss（false positive）。被標的是 `_edge_operators` 裡切 Mermaid 連線符號（`-->`、`-.->`、`--x`）的正則，作用在已遮蔽引號的單行文字上，用來斷詞，不是過濾 HTML，也不決定任何輸出是否安全；CodeQL 只因字面上有 `-->` 就當成 HTML 註解結尾。本 fork 該行是 #479 版本（`-+>|-{2,}[xo]`），上游對應行（`-+(?:>|x|o)`）同樣比對 `-->`；與先前 dismiss 的同類告警 #6 同理。
+
+### CI 維護（與上游無關，同輪處理）
+- `ci.yml` 的 `python39-compat`：`ubuntu-latest` 已換成 Ubuntu 26.04，`setup-python` 在該映像沒有 Python 3.9（`The version '3.9' with architecture 'x64' was not found for Ubuntu 26.04`，重跑同樣失敗），改釘 `ubuntu-24.04`。上游同日 CI 綠是因為其 runner 尚未輪到 26.04；上游改法出來後以上游為準。
+- `requirements-dev.txt`：`Dependency freshness` 報 `pytest>=9.1` 落後 PyPI 9.2.0，下限升為 `pytest>=9.2`（本機以 9.2.0 跑 `pytest tests` 全綠），`tests/test_dependency_freshness.py` 同步。
+
+Baseline 推進：`reviewed_through` → `f24d98b`、`reviewed_pr_through` → 505、`reviewed_issue_through` → 505；#490 重釘 `7f9c002`、新增 #504 釘 `2a5888b`、#505 釘 `ff37f8f`、移除 #494／#495／#496。
