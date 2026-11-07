@@ -424,3 +424,33 @@ Baseline 推進：`reviewed_pr_through` → 500、`reviewed_issue_through` → 5
 - `requirements-dev.txt`：`Dependency freshness` 報 `pytest>=9.1` 落後 PyPI 9.2.0，下限升為 `pytest>=9.2`（本機以 9.2.0 跑 `pytest tests` 全綠），`tests/test_dependency_freshness.py` 同步。
 
 Baseline 推進：`reviewed_through` → `f24d98b`、`reviewed_pr_through` → 505、`reviewed_issue_through` → 505；#490 重釘 `7f9c002`、新增 #504 釘 `2a5888b`、#505 釘 `ff37f8f`、移除 #494／#495／#496。
+
+## 2026-11-08：第九輪上游審查（commit 至 e57eda6、PR 至 #508、issue 至 #506）
+
+上一輪水位 `f24d98b` 之後上游進 2 個 commit、新增 PR #507（已合併）與 #508（draft）、新 issue #506（已關閉），以及 monitored 的 #490、#491、#492、#498、#505 head 漂移。`Upstream check` 紅燈即由此而來。
+
+判準六：本 fork 的 `scripts/verify-sequence-oauth.py`、`scripts/test-verify-sequence-oauth.py` 與四份外掛 manifest 和 `f24d98b` 的上游版本逐位元組相同（`git diff --quiet f24d98b HEAD -- <path>` 皆無差異），沒有 fork 覆蓋層，所以直接採上游版本。判準八：#507 的 `git diff f24d98b 26dd8ea -- scripts` 與 #508 的整份 diff 掃 40 字元以上空白後接內容、`eval`／`new Function`／`globalThis`、80 字元以上 base64 樣式、`os.system`／`socket`／`urllib`，皆無命中。
+
+### commit 軸（2 筆）全採
+| 上游 commit | 內容 | 本 fork 處理 |
+|---|---|---|
+| `26dd8ea` #507（對應 issue #506） | `verify-sequence-oauth.py` 驗證一般 OAuth 回傳與可見的 ALT 守衛，並加對抗測試；`CONTRIBUTING.md` 表格一行改寫 | 採。兩支腳本取上游版本；`CONTRIBUTING.md` 只改該表格列，保留本 fork 開頭的維護說明 |
+| `e57eda6` | 外掛 manifests 2.6.141 至 2.6.142 | 採 |
+
+### PR 軸
+| PR | 結論與證據 |
+|---|---|
+| #507 | MERGED（`26dd8ea`），見 commit 軸 |
+| #508 `9030616`（tanerumit，+43/-2，draft） | **延後並釘住**。為 `export_png.py` 加 `--channel`，讓沒有 Playwright 內建 Chromium 時可改用已安裝的 Edge／Chrome。缺陷條件在本 fork 成立（`export_png.py:36` 為 `chromium.launch()`），但這是選項新增而非行為錯誤：缺內建瀏覽器的既有處理方式是 README 所寫的 `playwright install chromium`（`README.md:508`）；PR 本身是 draft，作者自述上游閘門中 3 項在 Windows 主機不過，上游尚未審過。觸發條件：上游合併、head 改變，或本 fork 實際遇到無法安裝內建 Chromium 而需用系統瀏覽器的情況 |
+| #490 `614df53` | 維持延後並重釘。新 head 只是合併 `main` 的 merge commit，功能 commit 仍是審過的 `a9dffb1`、`e5ef76d` |
+| #491 `4657724`、#492 `e25413d` | 維持不採並重釘。各多一個 `docs(...): register overview layout budget` commit（文件登記），新增圖表型別屬上游策展範圍的原判不變 |
+| #498 `d12f03c` | 維持延後並重釘。新 head 只是合併 `main` 的 merge commit，功能 commit 仍到 `944b5e7` |
+| #505 `66425fb` | 維持延後並重釘。多一個 `fix(mermaid-import): keep an ER entity's first alias`，檔案範圍仍只有 `mermaid_extract.py`、`verify-mermaid-import.py`、`import-mermaid.md`，原判（ER 語法放寬、非 Windows／CJK）不變 |
+| #478、#479、#486、#504 | head 與 state 未動，維持原判 |
+
+### issue 軸
+| Issue | 結論與證據 |
+|---|---|
+| #506 Sequence OAuth verifier accepts a solid access-token return and a guard hidden in a comment | 已由 #507 修復並關閉；本 fork 採 #507，缺陷隨之消失 |
+
+Baseline 推進：`reviewed_through` → `e57eda6`、`reviewed_pr_through` → 508、`reviewed_issue_through` → 506；#490、#491、#492、#498、#505 重釘新 head，新增 #508 釘 `9030616`。
