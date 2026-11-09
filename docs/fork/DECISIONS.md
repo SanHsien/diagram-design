@@ -454,3 +454,41 @@ Baseline 推進：`reviewed_through` → `f24d98b`、`reviewed_pr_through` → 5
 | #506 Sequence OAuth verifier accepts a solid access-token return and a guard hidden in a comment | 已由 #507 修復並關閉；本 fork 採 #507，缺陷隨之消失 |
 
 Baseline 推進：`reviewed_through` → `e57eda6`、`reviewed_pr_through` → 508、`reviewed_issue_through` → 506；#490、#491、#492、#498、#505 重釘新 head，新增 #508 釘 `9030616`。
+
+## 2026-11-09：第十輪上游審查（commit 至 6a7f19f、PR 至 #515、issue 至 #511）
+
+上一輪水位 `e57eda6` 之後上游進 12 個 commit（6 筆 `chore(release)` 版號 bump 2.6.143 至 2.6.148、#504 舊 stateDiagram 標頭支援、#505 ER 別名與引號名稱、#490/#509 box-plot 繪製與 CSS 規則檢查、#486 SVG 匯出 NCR 保留、#436 弧線圖 arc diagram 變體）、6 個新 PR（#509 已合併，#510、#512、#513、#514、#515 待審）、1 個新 issue（#511），以及 monitored 的 #486/#490/#504/#505 轉為 closed（已合併）、#491/#492/#498 head 漂移。`Upstream check` 紅燈即由這些而來。
+
+判準六：檢查 31 個變更檔，其中 25 檔與 `e57eda6` 逐位元組相同（無 fork 覆蓋層），直接採上游版本；6 檔含 fork 覆蓋層（`ci.yml` 保留 action SHA pin 與 ubuntu-24.04、`CONTRIBUTING.md` 與 `README.md` 保留頂部 fork overlay、`import-mermaid.md`、`mermaid_extract.py` 與 `verify-mermaid-import.py` 保留 #479 的連字號節點 ID 移植與相應測試），手動合併上游更新。判準八：`e57eda6..6a7f19f` 整份 diff 與各 PR head 掃 40 字元以上空白後接內容、`eval`／`new Function`／`globalThis`／`atob`／`fromCharCode`、100 字元以上 base64 樣式、500 字元以上單行，僅有測試案例中的縮排字串與文件長行，無隱藏程式或危險呼叫。
+
+### commit 軸（12 筆）全採
+| 上游 commit | 內容 | 本 fork 處理 |
+|---|---|---|
+| `02ed81e` #504 | `mermaid_extract.py` 接受舊版 `stateDiagram` 標頭並視為 `stateDiagram-v2` | 採。更新 extractor 與 `verify-mermaid-import.py`，保留 #479 移植 |
+| `728824b` #505 | `mermaid_extract.py` ER 圖接受實體別名（`p[Person]`）與加引號實體名稱（`"Line Item"`） | 採。更新 extractor、`verify-mermaid-import.py` 與 `import-mermaid.md`，保留 #479 移植 |
+| `16a6343` #490（對應 issue #487 項 2） | `verify-box-plot.py` 拒絕本身無繪製的標記（`stroke="none"`、`stroke-width="0"`、`stroke-opacity="0"`） | 採。更新 verifier 與測試 `test-verify-box-plot.py` |
+| `c2c0c96` #509（對應 issue #487 項 1） | `verify-box-plot.py` 拒絕被樣式表規則隱藏的標籤（`display:none`、`fill-opacity:0`） | 採。更新 verifier 與測試 `test-verify-box-plot.py` |
+| `ab75153` #486 | `export_svg.py` 匯出獨立 SVG 時保留 HTML 數字字元參照（NCR，如 `&#128;` 保留為 `€`） | 採。更新 exporter 與測試 `test-export-svg-standalone.py` |
+| `1241c49` #436 | 新增 Dependency 弧線圖變體（arc diagram，gallery 41a，跨度為跳過席位數的半圓弧） | 採。引進 3 份範例 HTML、`verify-arc-diagram.py` 及測試、文件與參考資料，更新 `ci.yml` 與 `.maintainer-policy.json` |
+| 6 筆 `chore(release)`（`f6defca`、`ea6fb51`、`0fdc0c5`、`51c75cc`、`a928d8a`、`6a7f19f`） | 外掛 manifests 2.6.143 至 2.6.148 | 採 |
+
+### PR 軸
+| PR | 結論與證據 |
+|---|---|
+| #486、#490、#504、#505 | MERGED，見 commit 軸；從 `monitored` 移除 |
+| #509 | MERGED（`c2c0c96`），見 commit 軸 |
+| #510 `58dd408`（Chr0mium24，+72/-12） | **延後並釘住**。讓 `mermaid_extract.py` 將流程圖標籤中的單引號／撇號（`'`）當作文字處理而非字串邊界。非 Windows／CJK 類，外部貢獻者，上游尚未審查合併。觸發條件：上游合併 |
+| #512 `4e1839f`（Chr0mium24，+124/-8，對應 issue #511） | **延後並釘住**。支援 Mermaid ER 關係的字詞別名（如 `only one`、`zero or more`）與點狀連線。屬語法放寬、非 Windows／CJK 類；外部貢獻者，上游尚未審查合併。觸發條件：上游合併 |
+| #513 `2d311bc`（Socialpranker，+755/-696） | **延後並釘住**。將 `verify_geometry.py` 打包進 skill 套件目錄。屬打包機制變更，非 Windows／CJK 類。觸發條件：上游合併 |
+| #514 `b26a632`（Socialpranker，+347/-3） | **延後並釘住**。在 `self_check.py` 檢查框內文字是否超出寬度預算。非 Windows／CJK 類。觸發條件：上游合併 |
+| #515 `9bc0769`（Socialpranker，+10/-24） | **延後並釘住**。在 SKILL.md 加入以 `export_png.py` 產出預覽並人工檢視的步驟，同時把 SKILL.md 的 taste gate 縮短（SKILL.md +8/-23；SKILL.md 受 ADR 0004 位元組上限約束）。非 Windows／CJK 類。觸發條件：上游合併 |
+| #491 `a2e3f22`、#492 `ed4bdba` | 維持不採並重釘。各加兩個 commit（拒絕隱藏列／關卡），新增圖表型別屬上游策展範圍的原判不變 |
+| #498 `a966212` | 維持延後並重釘。多個 `--simplediagrams` 匯出修訂 commit，超出版號維護範圍的原判不變 |
+| #478、#479、#508 | head 與 state 未動，維持原判 |
+
+### issue 軸
+| Issue | 結論與證據 |
+|---|---|
+| #511 Mermaid import drops ER relationships written with cardinality word aliases | OPEN（Chr0mium24），對應 PR #512，屬語法擴展；同 PR #512 延後處理 |
+
+Baseline 推進：`reviewed_through` → `6a7f19f`、`reviewed_pr_through` → 515、`reviewed_issue_through` → 511；#491、#492、#498 重釘新 head，新增 #510、#512、#513、#514、#515 釘入 `monitored`，移除已合併的 #486、#490、#504、#505。

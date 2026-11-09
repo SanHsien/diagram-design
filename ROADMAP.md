@@ -13,8 +13,7 @@
 ## 中期：等條件成立再做
 | 項目 | 觸發條件 | 驗收方式 | 建議執行者 | 證據 |
 | --- | --- | --- | --- | --- |
-| 同步上游新提交與圖表模板更新 | `Upstream check` workflow 轉為 failure（上游有未審項目）或上游 main 有新 commit | 執行 `python tools/check_upstream_updates.py`，讀完 diff 後更新 `tools/upstream_baseline.json` 與 `docs/fork/DECISIONS.md`，`Upstream check` 與 CI 綠（上次完成：2026-11-08） | Codex | `tools/upstream_baseline.json`；`tools/check_upstream_updates.py` |
-| 決定是否採用上游 PR #486（`export_svg` 數字字元參照） | 上游合併 #486、或 #486 head 變動（`monitored` 會報）、或本 fork 遇到輸出 `&#12x;` 的圖（`docs/fork/DECISIONS.md:346`） | 讀 diff 後採用或記錄不採用理由；`docs/fork/DECISIONS.md` 更新；`python scripts/test-export-svg-standalone.py` 與 `pytest tests` 綠；`monitored` 移除 `pr#486` | Claude Sonnet | `docs/fork/DECISIONS.md:346`；`tools/upstream_baseline.json` 的 `monitored` |
+| 同步上游新提交與圖表模板更新 | `Upstream check` workflow 轉為 failure（上游有未審項目）或上游 main 有新 commit | 執行 `python tools/check_upstream_updates.py`，讀完 diff 後更新 `tools/upstream_baseline.json` 與 `docs/fork/DECISIONS.md`，`Upstream check` 與 CI 綠（上次完成：2026-11-09） | Codex | `tools/upstream_baseline.json`；`tools/check_upstream_updates.py` |
 | 上游合併或改 head 的 #479／#478 時，改用上游版本 | 上游合併 #479，或 #479／#478 head 變動（`docs/fork/DECISIONS.md:313`、`:347`） | 以上游版本取代本 fork 的移植，刪除 `docs/fork/DECISIONS.md:313` 那段分歧說明；`python scripts/verify-mermaid-import.py` 綠；`monitored` 移除 `pr#479`、`pr#478` | Claude Sonnet | `docs/fork/DECISIONS.md:313`、`:347`；`tools/upstream_baseline.json` 的 `monitored` |
 
 ## 刻意不做

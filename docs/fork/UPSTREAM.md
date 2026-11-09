@@ -125,3 +125,8 @@ overlay-only、產品原始碼與上游逐位元組相同，所以被上游拒�
 
 - commit：`f24d98b..e57eda6` 共 2 筆（`26dd8ea` #507 sequence OAuth 驗證、`e57eda6` 版本 2.6.142）全採。
 - PR 水位：**#508**；issue 水位：**#506**。#508（`export_png.py --channel`，draft）延後並釘住；#490、#491、#492、#498、#505 重釘新 head。理由與證據見 [`DECISIONS.md`](DECISIONS.md) 2026-11-08。
+
+## 2026-11-09：第十輪審查，水位推進到 `6a7f19fcc132b39b126bea90167679b46b14bcc4`
+
+- commit：`e57eda6..6a7f19f` 共 12 筆（版本 2.6.143 至 2.6.148、#504 舊 stateDiagram 標頭、#505 ER 別名與引號名稱、#490/#509 box-plot 繪製與 CSS 規則檢查、#486 SVG 匯出 NCR 保留、#436 弧線圖 arc diagram 變體）全採。
+- PR 水位：**#515**；issue 水位：**#511**。已合併的 #486、#490、#504、#505 從 `monitored` 移除；#491、#492、#498 重釘新 head；新增 #510、#512、#513、#514、#515 延後並以 `monitored` 釘住。理由與證據見 [`DECISIONS.md`](DECISIONS.md) 2026-11-09。

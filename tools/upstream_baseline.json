@@ -1,12 +1,12 @@
 {
   "repo": "https://github.com/cathrynlavery/diagram-design.git",
   "branch": "main",
-  "reviewed_through": "e57eda6102a19444538ebd611d39534fad65b663",
-  "reviewed_date": "2026-11-08",
+  "reviewed_through": "6a7f19fcc132b39b126bea90167679b46b14bcc4",
+  "reviewed_date": "2026-11-09",
   "decision_log": "docs/fork/DECISIONS.md",
-  "notes": "2026-09-13：第二輪 triage 與同步完成。合併上游至 8d8b299（#216，版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）以及 ADR 0009 自動版號架構。ci.yml 對齊 upstream ADR 0009，auto-bump.yml 加上 official guard。修復 check_upstream_updates.py 在 Windows CP950 下的 Unicode 編碼崩潰。PR 水位 → 222、issue 水位 → 220。 2026-09-30：第三輪審查至 57148ac／PR #263／issue #262；採用 #224/#223/#230/#260，其餘見 DECISIONS。 2026-10-25：第四輪整批同步至 0b9b10c（版本 2.6.120）／PR #472／issue #476；以上游樹為底重套覆蓋層，見 DECISIONS。 2026-10-26：第五輪審查至 10cfad6（版本 2.6.128）／PR #483／issue #482；採 16 個 commit 與未合併的 #479、#483，見 DECISIONS。 2026-10-28：第六輪審查至 0cf73c3（版本 2.6.136）／PR #486／issue #489；採 16 個 commit（含已合併的 #481、#483），#486 延後並以 monitored 釘住，#478／#479 同樣釘住，見 DECISIONS。 2026-11-02：第七輪審查，PR／issue 水位 → 500；採 #494／#495／#496（未合併），其餘釘住，見 DECISIONS。 2026-11-04：第八輪審查至 f24d98b（版本 2.6.141）／PR #505／issue #505；10 個 commit 全採（#494／#495／#496 合併版與移植相同），#504、#505 延後釘住，見 DECISIONS。 2026-11-08：第九輪審查至 e57eda6（版本 2.6.142）／PR #508／issue #506；採 #507（sequence OAuth 驗證）與版號 bump，#508 延後釘住，#490／#491／#492／#498／#505 重釘，見 DECISIONS。",
-  "reviewed_pr_through": 508,
-  "reviewed_issue_through": 506,
+  "notes": "2026-09-13：第二輪 triage 與同步完成。合併上游至 8d8b299（#216，版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）以及 ADR 0009 自動版號架構。ci.yml 對齊 upstream ADR 0009，auto-bump.yml 加上 official guard。修復 check_upstream_updates.py 在 Windows CP950 下的 Unicode 編碼崩潰。PR 水位 → 222、issue 水位 → 220。 2026-09-30：第三輪審查至 57148ac／PR #263／issue #262；採用 #224/#223/#230/#260，其餘見 DECISIONS。 2026-10-25：第四輪整批同步至 0b9b10c（版本 2.6.120）／PR #472／issue #476；以上游樹為底重套覆蓋層，見 DECISIONS。 2026-10-26：第五輪審查至 10cfad6（版本 2.6.128）／PR #483／issue #482；採 16 個 commit 與未合併的 #479、#483，見 DECISIONS。 2026-10-28：第六輪審查至 0cf73c3（版本 2.6.136）／PR #486／issue #489；採 16 個 commit（含已合併的 #481、#483），#486 延後並以 monitored 釘住，#478／#479 同樣釘住，見 DECISIONS。 2026-11-02：第七輪審查，PR／issue 水位 → 500；採 #494／#495／#496（未合併），其餘釘住，見 DECISIONS。 2026-11-04：第八輪審查至 f24d98b（版本 2.6.141）／PR #505／issue #505；10 個 commit 全採（#494／#495／#496 合併版與移植相同），#504、#505 延後釘住，見 DECISIONS。 2026-11-08：第九輪審查至 e57eda6（版本 2.6.142）／PR #508／issue #506；採 #507（sequence OAuth 驗證）與版號 bump，#508 延後釘住，#490／#491／#492／#498／#505 重釘，見 DECISIONS。 2026-11-09：第十輪審查至 6a7f19f（版本 2.6.148）／PR #515／issue #511；採 12 個 commit（#504 舊 stateDiagram 標頭、#505 ER 別名與引號名稱、#490/#509 box-plot 繪製與 CSS 規則檢查、#486 SVG 匯出 NCR 保留、#436 弧線圖 arc diagram 變體及 6 筆版號 bump），#491/#492/#498 重釘新 head，新開 PR #510/#512/#513/#514/#515 延後釘住，見 DECISIONS。",
+  "reviewed_pr_through": 515,
+  "reviewed_issue_through": 511,
   "monitored": [
     {
       "item": "pr#479",
@@ -19,44 +19,49 @@
       "state": "open"
     },
     {
-      "item": "pr#486",
-      "head": "0eb47d9482421bbd2541490095ecfbed2df49504",
-      "state": "open"
-    },
-    {
-      "item": "pr#490",
-      "head": "614df53872b0975f32eebcfc8672524a8b6e8c47",
-      "state": "open"
-    },
-    {
       "item": "pr#491",
-      "head": "46577245bdb476cf45268a54e1eae7ce71612579",
+      "head": "a2e3f22fa03f3213fcf4bfbbfd99cc77438e3ef0",
       "state": "open"
     },
     {
       "item": "pr#492",
-      "head": "e25413d1defc74cee720bc6ab95b2ea80529cb9b",
+      "head": "ed4bdba645aa5b7e9e5674be2aac23cad283848b",
       "state": "open"
     },
     {
       "item": "pr#498",
-      "head": "d12f03c0ff3e8990042fd36fa23dba095b7c7838",
-      "state": "open"
-    },
-    {
-      "item": "pr#504",
-      "head": "2a5888b5b54ec220956c5c2317ee23363da5de55",
-      "state": "open"
-    },
-    {
-      "item": "pr#505",
-      "head": "66425fb0918918ccc010c9353d9735b2f788c79b",
+      "head": "a9662124b315493c43dd920d2d8a221791f62f4f",
       "state": "open"
     },
     {
       "item": "pr#508",
       "head": "903061683b8d88e17e9dcdc87a944871963005c0",
       "state": "draft"
+    },
+    {
+      "item": "pr#510",
+      "head": "58dd40869d20ec61b83e0fd564e29a15ab7694c6",
+      "state": "open"
+    },
+    {
+      "item": "pr#512",
+      "head": "4e1839f448de92501f506c643a50069a168f18e8",
+      "state": "open"
+    },
+    {
+      "item": "pr#513",
+      "head": "2d311bccaf6205fdc812dfb2a608fcd93c230554",
+      "state": "open"
+    },
+    {
+      "item": "pr#514",
+      "head": "b26a632fb318c6c4235d69946afdcb2392b02b23",
+      "state": "open"
+    },
+    {
+      "item": "pr#515",
+      "head": "9bc0769069f611b7974941ec0e5ccca5bb3d107e",
+      "state": "open"
     }
   ]
 }
