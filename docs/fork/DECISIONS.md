@@ -492,3 +492,15 @@ Baseline 推進：`reviewed_through` → `e57eda6`、`reviewed_pr_through` → 5
 | #511 Mermaid import drops ER relationships written with cardinality word aliases | OPEN（Chr0mium24），對應 PR #512，屬語法擴展；同 PR #512 延後處理 |
 
 Baseline 推進：`reviewed_through` → `6a7f19f`、`reviewed_pr_through` → 515、`reviewed_issue_through` → 511；#491、#492、#498 重釘新 head，新增 #510、#512、#513、#514、#515 釘入 `monitored`，移除已合併的 #486、#490、#504、#505。
+
+## 2026-11-12：Dependabot npm 失敗 run（`/.github/ci/node`）與 claude-code 釘版手動追上
+
+**背景**：2026-11-09 `npm_and_yarn in /.github/ci/node for @anthropic-ai/claude-code` 更新 run（run 42715342893）失敗。Dependabot 能算出新版，但建立 PR 時 `create_pull_request` 回 400「The request contains invalid or unauthorized changes」，錯誤類型 `dependency_file_not_supported`。同類 `uv` 目錄 `/.github/ci/python` 在 2026-10-25 也有 Bad Request（見 2026-10-26 同日補記）。Dependabot 端拒收的具體規則未查明，本 repo 不能從檔案內容判斷。
+
+**處置**：不改 `dependabot.yml` 的目錄結構（搬出 `.github/` 會牽動 `ci.yml` 與 `dependabot.yml`，且未證實能解決 400）。改由維護者手動追上釘版：
+- `.github/ci/node/package.json` 與 `package-lock.json`：`@anthropic-ai/claude-code` 由 `2.1.229` 升到 `2.1.318`（精確版號，與原釘法相同）。
+- 選 2.1.318 而非最新：`dependabot.yml` 的 `cooldown.default-days: 7`，2.1.323 於 2026-11-12 發布，未過冷卻期；2.1.318 發布於 2026-11-03。
+
+**驗證（2026-11-12，Windows 原生）**：`npm ci --prefix .github/ci/node` 成功；`.github/ci/node/node_modules/.bin/claude plugin validate . --strict` 通過（exit 0）；`tools\dev_check.ps1` 全綠；`scripts/verify-plugin-package.py --require-no-bump origin/main` 通過（外掛版號不變）；`scripts/test-maintainer-policy.py` 通過。
+
+**未解**：Dependabot 對 `.github/ci/*` 建 PR 的 400 根因未查明。下次月度排程若仍出現失敗 run，再決定是否把 CI 工具目錄搬出 `.github/`，或接受 Dependabot 在此路徑無法開 PR、由維護者手動追版。
