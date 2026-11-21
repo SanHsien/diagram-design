@@ -13,8 +13,8 @@
 ## 中期：等條件成立再做
 | 項目 | 觸發條件 | 驗收方式 | 建議執行者 | 證據 |
 | --- | --- | --- | --- | --- |
-| 同步上游新提交與圖表模板更新 | `Upstream check` workflow 轉為 failure（上游有未審項目）或上游 main 有新 commit | 執行 `python tools/check_upstream_updates.py`，讀完 diff 後更新 `tools/upstream_baseline.json` 與 `docs/fork/DECISIONS.md`，`Upstream check` 與 CI 綠（上次完成：2026-11-09） | Codex | `tools/upstream_baseline.json`；`tools/check_upstream_updates.py` |
-| 上游合併或改 head 的 #479／#478 時，改用上游版本 | 上游合併 #479，或 #479／#478 head 變動（`docs/fork/DECISIONS.md:313`、`:347`） | 以上游版本取代本 fork 的移植，刪除 `docs/fork/DECISIONS.md:313` 那段分歧說明；`python scripts/verify-mermaid-import.py` 綠；`monitored` 移除 `pr#479`、`pr#478` | Claude Sonnet | `docs/fork/DECISIONS.md:313`、`:347`；`tools/upstream_baseline.json` 的 `monitored` |
+| 同步上游新提交與圖表模板更新 | 觸發條件已成立（2026-11-21 查：`python tools/check_upstream_updates.py --strict` exit 1：baseline `6a7f19f` 後 40 個 commit）。原條件：`Upstream check` workflow 轉為 failure（上游有未審項目）或上游 main 有新 commit | 執行 `python tools/check_upstream_updates.py`，讀完 diff 後更新 `tools/upstream_baseline.json` 與 `docs/fork/DECISIONS.md`，`Upstream check` 與 CI 綠（上次完成：2026-11-09） | Codex | `tools/upstream_baseline.json`；`tools/check_upstream_updates.py` |
+| 上游合併或改 head 的 #479／#478 時，改用上游版本 | 觸發條件已成立（2026-11-21 查：上游 #479 於 2026-11-12 合併，#478 同日關閉未合併）。原條件：上游合併 #479，或 #479／#478 head 變動（`docs/fork/DECISIONS.md:313`、`:347`） | 以上游版本取代本 fork 的移植，刪除 `docs/fork/DECISIONS.md:313` 那段分歧說明；`python scripts/verify-mermaid-import.py` 綠；`monitored` 移除 `pr#479`、`pr#478` | Claude Sonnet | `docs/fork/DECISIONS.md:313`、`:347`；`tools/upstream_baseline.json` 的 `monitored` |
 
 ## 刻意不做
 | 不做什麼 | 理由 | 什麼情況下重新考慮 |
