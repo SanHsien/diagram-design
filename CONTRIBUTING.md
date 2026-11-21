@@ -19,7 +19,7 @@ Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) first. All contributions ar
 
 ## What this project is
 
-Diagram Design is an agent skill (Claude Code, Codex, Factory Droid, Pi) that produces editorial-quality diagrams as self-contained HTML files. The repo is documentation-first: `skills/diagram-design/SKILL.md` is the index, each of the 45 visual types has its own reference file, and the extractor scripts in `skills/diagram-design/scripts/` turn draw.io, Mermaid, and Excalidraw sources into a structured IR.
+Diagram Design is an agent skill (Claude Code, Codex, Factory Droid, Pi) that produces editorial-quality diagrams as self-contained HTML files. The repo is documentation-first: `skills/diagram-design/SKILL.md` is the index, each of the 51 visual types has its own reference file, and the extractor scripts in `skills/diagram-design/scripts/` turn draw.io, Mermaid, Excalidraw, and PlantUML sources into a structured IR.
 
 See [README.md](README.md) for the full picture, including the design system and the import/export flows.
 
@@ -55,8 +55,11 @@ Every validation gate below must pass before a PR is ready. They also run automa
 | Skin conformance of every example and template (colors, fonts, a11y, assets, scripts) | `python3 scripts/lint-skin.py --all --baseline` |
 | Skin token contrast: every text token clears 4.5:1 and every essential mark 3:1 on paper, light and dark, with translucent tokens composited first | `python3 scripts/test-verify-contrast.py && python3 scripts/verify-contrast.py` |
 | Rendered-layout checker and shipped examples/templates | `python3 scripts/lint-render.py --self-test && python3 scripts/lint-render.py --all` |
+| Unit Grid equal cells, reading order, printed values, and movement | `python3 scripts/test-verify-unit-grid.py && python3 scripts/verify-unit-grid.py --all` |
 | Quantitative polar encoding and variant parity | `python3 scripts/test-verify-polar.py && python3 scripts/verify-polar.py` |
 | Heatmap monotone opacity ramp, complete N×M grid, ≤1 focal cell | `python3 scripts/test-verify-heatmap.py && python3 scripts/verify-heatmap.py --all` |
+| Requirement traceability IDs, typed links, and explicit gaps | `python3 scripts/verify-requirement-traceability.py --all && python3 scripts/test-verify-requirement-traceability.py` |
+| Event modeling stage order, role IDs, and typed link endpoints | `python3 scripts/verify-event-modeling.py --all && python3 scripts/test-verify-event-modeling.py` |
 | A single file, e.g. a new example | `python3 scripts/lint-skin.py skills/diagram-design/assets/example-my-type.html` |
 | Sequence-doc consistency, visible ALT guards, ordinary OAuth returns, and headline activation | `python3 scripts/verify-sequence-oauth.py` |
 | Semantic-motion verifier behaves (pass + adversarial cases) | `python3 scripts/test-verify-semantic-motion.py` |
@@ -64,6 +67,7 @@ Every validation gate below must pass before a PR is ready. They also run automa
 | draw.io import path (real extractor vs fixtures + docs sync) | `python3 scripts/verify-drawio-import.py && python3 scripts/test-verify-drawio-import.py` |
 | Mermaid import path (grammars, adversarial input, caps, docs sync) | `python3 scripts/verify-mermaid-import.py` |
 | Excalidraw import path (scenes, adversarial input, caps, docs sync) | `python3 scripts/verify-excalidraw-import.py && python3 scripts/test-verify-excalidraw-import.py` |
+| PlantUML import path (sequence/class, adversarial input, caps, docs sync) | `python3 scripts/verify-plantuml-import.py && python3 scripts/test-verify-plantuml-import.py` |
 | Optional motion contract (fallbacks, controls, budgets, determinism) | `python3 scripts/test-verify-motion.py` |
 | Doctor diagnostics contract (env checks, script presence, routing wiring) | `python3 scripts/verify-doctor.py` |
 | Doctor diagnostics adversarial tests | `python3 scripts/test-verify-doctor.py` |
@@ -87,6 +91,8 @@ Every validation gate below must pass before a PR is ready. They also run automa
 | Axonometric plan examples are what the builder produces | `python3 scripts/build-axonometric-plan-examples.py --check` |
 | Axonometric plan boxes match their declared footprints, paint back to front, never overlap, and carry one clear tag each | `python3 scripts/verify-axonometric-plan.py --all` |
 | Axonometric plan checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-axonometric-plan.py` |
+| SBGN maps are bipartite, compartment-contained, and under the Bruno ceiling | `python3 scripts/verify-sbgn.py --all` |
+| SBGN checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-sbgn.py` |
 | Traceable block decomposition registries have unique IDs, resolving parents, names, and no cycles | `python3 scripts/verify-block-registry.py --all` |
 | Block registry checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-block-registry.py` |
 | Treemap cells match the values they are labelled with, and labels fit | `python3 scripts/verify-treemap.py --all` |
@@ -107,6 +113,8 @@ Every validation gate below must pass before a PR is ready. They also run automa
 | Waterfall checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-waterfall.py` |
 | Service-blueprint visibility line, stage grid, and census | `python3 scripts/verify-service-blueprint.py --all` |
 | Service-blueprint checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-service-blueprint.py` |
+| Steps equal-width contiguous rail, numbering, medallions, and focal stage | `python3 scripts/verify-steps.py --all` |
+| Steps checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-steps.py` |
 | Bubble positions sit on shared axis scales and area encodes every declared size | `python3 scripts/verify-bubble.py --all` |
 | Bubble checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-bubble.py` |
 | Bump vertices sit exactly on one rank grid and every endpoint label is placed on both axes | `python3 scripts/verify-bump.py --all` |
@@ -117,6 +125,7 @@ Every validation gate below must pass before a PR is ready. They also run automa
 | Box-plot checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-box-plot.py` |
 | Arc-diagram spans sit on one shared pitch, each a rising semicircle whose height is the seat count | `python3 scripts/verify-arc-diagram.py --all` |
 | Arc-diagram checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-arc-diagram.py` |
+| Quoted CSS data is not read as a geometry declaration by any verifier (pass + adversarial cases) | `python3 scripts/test-css-string-scan.py` |
 | Every directional tone claim matches the ramp it describes, on every skin | `python3 scripts/verify-skin-polarity.py --all` |
 | Skin-polarity checker behaves (pass + adversarial cases) | `python3 scripts/test-verify-skin-polarity.py` |
 | Generated icon assets are up to date (`icons.html`, `primitive-icons.md`) | `python3 scripts/build-icons.py` then `git diff --exit-code` on the two generated files |
@@ -133,15 +142,18 @@ The current type checkers verify **internal consistency** of the chart and its d
 
 Keep native plugin and marketplace `description` fields within 500 characters
 for Cowork installation compatibility ([#208](https://github.com/cathrynlavery/diagram-design/issues/208)).
-They must still name every visual type; keep fuller feature details in the skill
-frontmatter and Codex `longDescription`. The docs-sync gate checks both length
-and routing vocabulary, and the package gate keeps native descriptions aligned.
+They summarize the main families and don't need to name a new type. The skill
+frontmatter description and the Codex `longDescription` must name every visual
+type. The docs-sync gate checks the length and the routing vocabulary, and the
+package gate keeps native descriptions aligned.
 
 The Codex `interface` block doubles as the OpenAI plugin directory listing, so
 `displayName` and `shortDescription` stay within 30 characters and
 `longDescription` within 4,000. `scripts/build-openai-plugin-zip.py --check`
 enforces those limits. The maintainer publishes the directory listing; please
 don't submit this plugin to OpenAI or any other plugin directory yourself.
+
+Static geometry verifiers using `scripts/css_property_scan.py` refuse escaped CSS declaration names, including escaped custom-property names ([#518](https://github.com/cathrynlavery/diagram-design/issues/518)). Spell declaration names literally. Escapes in values, quoted data, comments and selector preludes retain each verifier's existing restrictions; `scripts/test-css-string-scan.py` covers both accepted data and rejected declarations.
 
 Run them all at once before pushing:
 
@@ -159,6 +171,8 @@ python3 scripts/test-plugin-package.py \
   && python3 scripts/lint-skin.py --all --baseline \
   && python3 scripts/lint-render.py --self-test \
   && python3 scripts/lint-render.py --all \
+  && python3 scripts/test-verify-unit-grid.py \
+  && python3 scripts/verify-unit-grid.py --all \
   && python3 scripts/test-verify-polar.py \
   && python3 scripts/verify-polar.py \
   && python3 scripts/test-verify-heatmap.py \
@@ -171,6 +185,8 @@ python3 scripts/test-plugin-package.py \
   && python3 scripts/verify-mermaid-import.py \
   && python3 scripts/verify-excalidraw-import.py \
   && python3 scripts/test-verify-excalidraw-import.py \
+  && python3 scripts/verify-plantuml-import.py \
+  && python3 scripts/test-verify-plantuml-import.py \
   && python3 scripts/test-verify-motion.py \
   && python3 scripts/verify-doctor.py \
   && python3 scripts/test-verify-doctor.py \
@@ -196,6 +212,8 @@ python3 scripts/test-plugin-package.py \
   && python3 scripts/build-axonometric-plan-examples.py --check \
   && python3 scripts/verify-axonometric-plan.py --all \
   && python3 scripts/test-verify-axonometric-plan.py \
+  && python3 scripts/verify-sbgn.py --all \
+  && python3 scripts/test-verify-sbgn.py \
   && python3 scripts/verify-block-registry.py --all \
   && python3 scripts/test-verify-block-registry.py \
   && python3 scripts/verify-treemap.py --all \
@@ -216,6 +234,8 @@ python3 scripts/test-plugin-package.py \
   && python3 scripts/test-verify-waterfall.py \
   && python3 scripts/verify-service-blueprint.py --all \
   && python3 scripts/test-verify-service-blueprint.py \
+  && python3 scripts/verify-steps.py --all \
+  && python3 scripts/test-verify-steps.py \
   && python3 scripts/verify-bubble.py --all \
   && python3 scripts/test-verify-bubble.py \
   && python3 scripts/verify-bump.py --all \
@@ -226,6 +246,7 @@ python3 scripts/test-plugin-package.py \
   && python3 scripts/test-verify-box-plot.py \
   && python3 scripts/verify-arc-diagram.py --all \
   && python3 scripts/test-verify-arc-diagram.py \
+  && python3 scripts/test-css-string-scan.py \
   && python3 scripts/verify-skin-polarity.py --all \
   && python3 scripts/test-verify-skin-polarity.py \
   && python3 scripts/test-export-wait.py
@@ -236,7 +257,7 @@ python3 scripts/test-plugin-package.py \
 - **`verify-plugin-package.py`:** if it reports a version change, drop the manifest edits from your branch — versions are bumped on `main` after merge, never in a PR. If packaging validation fails, keep all native marketplaces pointed at the repository root and keep the shared skill at `skills/diagram-design/SKILL.md`.
 - **`lint-skin.py`:** the failure message names the file, line, and category (`color`, `font-family`, `a11y`, `external-asset`, `pure-black`, `script`). Colors must come from the palette in `skills/diagram-design/references/style-guide.md`; fonts from the allowed list; diagrams must satisfy the accessible SVG contract (see below). The linter also requires the SHA-pinned controller from `template-motion.html` verbatim and rejects remote resources, CSS `@import`, non-fragment CSS `url()`, event handlers, `srcdoc`, executable URLs, and extra scripts.
 - **`verify-*.py`:** the extractor's real behavior no longer matches its fixture or the documentation, or the reference/command/prompt wiring drifted. Fix the source of truth — do not widen a test to avoid a failure.
-- **`verify-screenshot-freshness.py`:** a canonical minimal-light example or its committed PNG changed without a synchronized catalog refresh. Before the first regeneration, install the renderer with `python3 -m pip install playwright && python3 -m playwright install chromium`. Then run `python3 scripts/render-canonical-screenshots.py`, inspect all 45 renders, and commit the updated PNGs plus `docs/screenshots/manifest.json`. The gate hashes example sources in their canonical LF form, so a checkout that converts LF to CRLF still passes; `scripts/test-verify-screenshot-freshness.py` covers that case, real source drift, and raw PNG digests.
+- **`verify-screenshot-freshness.py`:** a canonical minimal-light example or its committed PNG changed without a synchronized catalog refresh. Before the first regeneration, install the renderer with `python3 -m pip install playwright && python3 -m playwright install chromium`. Then run `python3 scripts/render-canonical-screenshots.py`, inspect all 51 renders, and commit the updated PNGs plus `docs/screenshots/manifest.json`. The gate hashes example sources in their canonical LF form, so a checkout that converts LF to CRLF still passes; `scripts/test-verify-screenshot-freshness.py` covers that case, real source drift, and raw PNG digests.
 - **`build-readme-thumbs.py --check`:** a README preview is missing, stale, corrupt, the wrong size, orphaned, or no longer links to its full PNG. Install the pinned renderer with `python3 -m pip install Pillow==13.0.0`, run `python3 scripts/build-readme-thumbs.py`, inspect the preview changes, and commit the WebPs plus `docs/screenshots/thumbs/manifest.json`.
 - **`verify-marimekko.py`:** a column is drawn off its category's share of the width, a segment off its series' share of the column, the columns do not share one plot height or one gutter, segments leave a gap or overlap, a series changes order between columns, a second segment wears the accent, anything positions a segment or a bound label from a `transform` attribute, an inline `style`, or a `<style>` rule, or a label, caption or key disagrees with the rect it binds. Fix the geometry or the declaration so they state one thing — never widen a column or pad a segment to fit a label, and never drop a category or a series to tidy the grid.
 - **`verify-slopegraph.py`:** the two axes disagree about scale or origin, or an endpoint is drawn somewhere other than where its own declared value belongs. Fix the coordinate, never the label — and never move a point to stop two endpoint labels colliding, because crowded labels mean the values really are close.
@@ -253,6 +274,8 @@ python3 scripts/test-plugin-package.py \
 - **`verify-architecture-containment.py`:** a nested Architecture figure with `data-grammar="architecture-containment"` has a duplicate ID, an unresolved or cyclic parent, a child drawn outside its declared parent, an admin band that is not a dashed rx=4 rectangle, a traffic box that is not a solid rx=8 rectangle, a managed PaaS box sitting inside a traffic scope, an endpoint that is not inside one, a peering that does not join two traffic scopes, mixed sibling axes, or off-grid bounds. Follow `type-architecture.md` Containment: keep administrative and traffic shapes distinct, put managed services in the admin band that owns them, and put only the private endpoint in the subnet.
 - **`verify-exploded.py`:** a part's silhouette is off the projection of the box it declares, a level sits at two heights, the gaps differ or fall under max(0.5 x top-face height, 3 x part thickness), a leader bends, starts off its part, or crosses another part, labels crowd or leave the column, or an animated lift disagrees with the geometry. Change the model in `scripts/build-exploded-examples.py` and rebuild; never nudge a drawn coordinate, and never shrink a gap to fit the canvas.
 - **`verify-axonometric-plan.py`:** a box's silhouette is off the projection of its declared footprint, a box stands outside the plate, floats above it, or shares floor with another, a box is painted after one in front of it, or a tag is off its plan point, stands on a room or roof it does not name, overlaps another tag, runs past two words, or is missing or doubled for a room or building. Change the plan in `scripts/build-axonometric-plan-examples.py` and rebuild; move a tag to open floor rather than shrinking it.
+- **`verify-sbgn.py`:** a species-to-species or process-to-process arc, an arc with a missing or unknown `data-kind`, a drawn connector with no arc declaration outside the `data-role="legend"` group, two arcs that cross without a hop, overlap, or meet mid-stroke, a glyph moved by a `transform` attribute, positional inline style, or a stylesheet rule that can reach it, a missing compartment, an unresolved endpoint, a glyph off the 4px grid, or a map over the Bruno ceiling (7 macromolecules, 6 processes, 1 compartment, 2 source/sink, 16 arcs). Follow `type-sbgn.md`: keep the bipartite species/process grammar, draw the compartment as a glyph, and split a larger map. Fix the diagram and metadata together; never drop a process node to hide a species–species shortcut.
+- **`verify-steps.py`:** a rail segment breaks the equal-width contiguous rail, a stage index, number, medallion or focal flag disagrees with its rail segment, or what the browser draws can differ from what is measured. Any repeated attribute fails; a checked mark (rail, medallion, number) may carry only its own geometry, paint and data attributes, sit only under plain `<g>` groups of the one root SVG, stay inside the viewBox, and paint in a visible non-paper house ink (numbers at font-size 8 or more in a house font, anchored at their middle, with no child elements). The page around the SVG uses only the shipped tags and attributes and the Google Fonts link. A `<style>` may not use escapes, `@import` or at-rules other than `@media` and `@font-face`, and may not move anything; rules that can reach SVG content may set only `box-sizing`, `margin`, `padding` and custom properties, and rules on the SVG's HTML ancestors only layout-neutral page properties. Style marks with presentation attributes, and fix the geometry, never the binding.
 - **`verify-block-registry.py`:** a Traceable block decomposition diagram (`semantic-patterns.md` § 8) has a duplicate `data-block-id`, a `data-block-parent` that doesn't resolve to another block's id in the same file, a blank `data-block-id`, a missing or blank `data-block-name`, or a cycle in the parent chain. Fix the diagram's attributes — the checker mirrors the source rather than validating semantics, so a passing file is only as correct as the IDs and parents actually authored on it.
 - **Icon assets:** you changed `scripts/vendor/icons/` or `scripts/build-icons.py` and the generated files went stale. Rerun `python3 scripts/build-icons.py` and commit the regenerated files.
 
@@ -282,7 +305,7 @@ Treemaps get a second geometric gate, because their whole claim is that area *is
 
 The same count check covers this guide, `SKILL.md`, and the current onboarding and semantic-pattern references. Historical changelog entries and ADRs keep the count that was accurate when they were written. After a new type merges, a maintainer must also update the repository's GitHub About description, [Cathryn's profile README](https://github.com/cathrynlavery/cathrynlavery/blob/main/README.md), and [diagramdesign.dev](https://diagramdesign.dev); those live outside this CI check.
 
-The skill also ships `skills/diagram-design/scripts/self_check.py`, a distilled output checker installed agents can run on their own generated diagrams; `python3 scripts/test-self-check.py` keeps it honest.
+The skill also ships `skills/diagram-design/scripts/self_check.py`, a distilled output checker installed agents can run on their own generated diagrams; `python3 scripts/test-self-check.py` keeps it honest. The geometry checker ships the same way as `skills/diagram-design/scripts/verify_geometry.py`; `scripts/verify-geometry.py` only runs it, so the gate commands stay the same.
 
 ### Render lint
 
@@ -346,7 +369,7 @@ Settled policies live as short records in `docs/adr/` — one pinned motion cont
 ## Adding a new diagram type
 
 1. Write `skills/diagram-design/references/type-<name>.md` — layout conventions, anti-patterns, and a worked pattern for that type. Mirror an existing reference's structure.
-2. Add the row to the selection table in `skills/diagram-design/SKILL.md` §3 **and** the type's name to the frontmatter `description` — `verify-docs-sync.py` fails if the description loses or lacks a type's lexical hook.
+2. Add the row to the selection table in `skills/diagram-design/SKILL.md` §3 **and** the type's name to the frontmatter `description` and the Codex `interface.longDescription` in `.codex-plugin/plugin.json`. `verify-docs-sync.py` fails if either loses or lacks a type's lexical hook.
 3. Add the three example variants (see above) and register them in the gallery (`assets/index.html`) with the next type number; extra examples of an existing type go directly after it as lettered variants (`data-parent-type`, eyebrow `04a`). `verify-docs-sync.py` fails on any shipped example the gallery can't reach and on any numbered tab without a matching `type-*.md`.
 4. Run the full gate suite — new examples are linted automatically by `--all`.
 5. After merge, the maintainer updates the GitHub About description, Cathryn's profile README, and diagramdesign.dev to the new count, then checks the live pages. Contributors do not need write access to those surfaces.
@@ -368,8 +391,9 @@ git diff --exit-code -- skills/diagram-design/assets/icons.html skills/diagram-d
 - draw.io: `skills/diagram-design/scripts/drawio_extract.py` — must pass `scripts/verify-drawio-import.py`, which drives the extractor against `scripts/fixtures/sample-architecture.drawio` in all four container formats (raw XML, deflate+base64, PNG-embedded, SVG-embedded).
 - Mermaid: `skills/diagram-design/scripts/mermaid_extract.py` — must pass `scripts/verify-mermaid-import.py`, which covers every supported grammar, multi-block Markdown, adversarial labels, trust-boundary behavior, resource caps, and named failures.
 - Excalidraw: `skills/diagram-design/scripts/excalidraw_extract.py` — must pass `scripts/verify-excalidraw-import.py`, which covers scene parsing, bound labels, groups and frames, adversarial labels, trust-boundary behavior, resource caps, and named failures.
+- PlantUML: `skills/diagram-design/scripts/plantuml_extract.py` — must pass `scripts/verify-plantuml-import.py`, which covers sequence and class grammars, multi-block files, adversarial labels, trust-boundary behavior, resource caps, and named failures.
 
-All three scripts treat their input as **untrusted data** — they never render, fetch, or execute source content. Keep it that way. If you add a grammar or a new security boundary, extend the corresponding verifier with a fixture before merging.
+All four scripts treat their input as **untrusted data** — they never render, fetch, or execute source content. Keep it that way. If you add a grammar or a new security boundary, extend the corresponding verifier with a fixture before merging.
 
 Documentation and wiring must stay in sync: the import references, `SKILL.md` §11, the slash commands in `commands/`, and the Pi prompt templates in `prompts/` each describe the same flows. The verifiers check this — keep both sides updated in one PR.
 

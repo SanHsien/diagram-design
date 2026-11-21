@@ -5,7 +5,7 @@
 ## 專案定位
 
 這是 [`cathrynlavery/diagram-design`](https://github.com/cathrynlavery/diagram-design) 的 MIT fork。
-核心價值是一套給 AI Agent 用的編輯級圖表 skill：45 種視覺類型、純 HTML + SVG、座標與間距可被 4 整除、沒有陰影、圓角最多 10px。不是再做一個 Mermaid 包裝器。
+核心價值是一套給 AI Agent 用的編輯級圖表 skill：51 種視覺類型、純 HTML + SVG、座標與間距可被 4 整除、沒有陰影、圓角最多 10px。不是再做一個 Mermaid 包裝器。
 
 `origin` 是 `SanHsien/diagram-design`，`upstream` 是原作者 repo，預設分支皆為 `main`。
 保留上游作者、MIT 授權與產品 `skills/diagram-design/`、`scripts/`、`commands/`、`prompts/`。本 fork 的維護差異記在 [`FORK.md`](FORK.md) 與 [`docs/fork/DECISIONS.md`](docs/fork/DECISIONS.md)。
@@ -36,7 +36,7 @@
 
 - 一般 overlay 變更直接推 `origin/main`，不開功能分支、不開維護 PR。只有在需要他人審查、或改動風險高到值得先讓 CI 在 PR 上跑一輪時，才退回 **branch → PR → CI → merge**。
 - 修 overlay bug 先補可重現失敗測試，再做最小修正。
-- 上游公開安裝方式、skill frontmatter（`name` + `description`）、45 種類型詞彙、座標可被 4 整除的設計契約視為相容性契約。
+- 上游公開安裝方式、skill frontmatter（`name` + `description`）、51 種類型詞彙、座標可被 4 整除的設計契約視為相容性契約。
 - 不為了套格式而大改上游檔案；Ruff 只閘 E9（語法）與 F（pyflakes），且只掃 fork 的 Python。
 - 使用繁體中文回覆；維護文件以繁中為主，公開產品入口保持英文 `README.md`。
 - 上游更新英文 `README.md` 時：保留頂部 overlay，同步產品說明，不要帶回作者宣傳到 overlay 文件。
@@ -68,7 +68,7 @@ Baseline 代表「已審查」，不代表「全部已合併」。
 
 - **Gallery**：每個範例登記在 `skills/diagram-design/assets/index.html`；新型別取下一個編號，既有型別的其他範例是緊接在父項後的字母變體（`data-parent-type`、eyebrow 如 `28c`）。
 - **型別計數（新型別）**：調高 `scripts/verify-docs-sync.py`、`scripts/verify-semantic-motion.py` 的 `VISUAL_TYPE_COUNT`，以及 `scripts/verify-screenshot-freshness.py`、`scripts/render-canonical-screenshots.py` 寫死的計數；再修掉套件回報的每個計數（README、SKILL.md、CONTRIBUTING、`onboarding.md`、`semantic-patterns.md`，加 ADR 0002 的新增條）。fork 文件的計數（`FORK.md`、本檔）由 `tests/test_fork_overlay.py` 對 `VISUAL_TYPE_COUNT` 核對。
-- **Plugin manifests**：`.claude-plugin`、`.codex-plugin`、`.factory-plugin`、`.qoder-plugin` 的 `description`／`keywords` 要一致；`version` 不動（ADR 0009 由 main 自動升）。
+- **Plugin manifests**：`.claude-plugin`、`.codex-plugin`、`.factory-plugin`、`.qoder-plugin` 的 `description`／`keywords` 要一致；新型別寫進 SKILL.md frontmatter 的 description 與 Codex 的 `longDescription`，500 字元的 `description` 只概括類型家族（ADR 0004）；選型表名稱與描述用字不同的型別要在 `verify-docs-sync.py` 加 `DESCRIPTION_ALIASES`；`version` 不動（ADR 0009 由 main 自動升）。
 - 沒有套件檢查、要手做：README 縮圖與格子（跑 `scripts/render-canonical-screenshots.py`、`scripts/build-readme-thumbs.py`）、README 命名變體行、README 檔案樹、`references/layout-budget.md` 的預算列。
 - push 前跑 `.maintainer-policy.json` 的 `gates.local_commands`。
 

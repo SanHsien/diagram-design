@@ -18,6 +18,9 @@ select = ["E9", "F"]
 "scripts/axonometry.py" = ["F841"]
 "scripts/fix-mojibake.py" = ["F541"]
 "scripts/test-export-svg-standalone.py" = ["F811"]
+"scripts/test-verify-schedule-network.py" = ["F401"]  # unused subprocess, sys imports
+"scripts/verify-schedule-network.py" = ["F401"]  # unused sys import
+"scripts/verify-steps.py" = ["F401"]  # unused sys import
 "skills/diagram-design/scripts/drawio_extract.py" = ["F821"]  # NoReturn used only in an annotation
 
 [tool.pytest.ini_options]

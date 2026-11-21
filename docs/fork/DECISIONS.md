@@ -309,9 +309,6 @@ Windows／CJK 類：#438 日文兩行標籤（由 #439 修）、#401 draw.io `--
 ### issue 軸
 #482（Hermes 安裝被 `html_comment_injection` 誤判擋下）：由 #483 處理。#475（primary connector 的 marker 恆為 `accent`）：與 #481 同一缺陷，一併延後。
 
-### 分歧清單新增
-`ci.yml` 與 `mermaid_extract.py`／`verify-mermaid-import.py`／`import-mermaid.md` 現在含上游**尚未合併**的 #479、`ci.yml`／`CONTRIBUTING.md`／`.maintainer-policy.json`／`scripts/test-install-scan.py`／`example-high-level-vertical.html` 含 #483。上游合併（或改採不同修法）後下次同步會有衝突，屆時以上游版本為準並刪除本段。
-
 ### 驗證
 `verify-mermaid-import.py`、`test-self-check.py`、`test-verify-heatmap.py`、`verify-heatmap.py`、`verify-docs-sync.py`、`test-lint-a11y.py`、`test-plugin-package.py`、`test-install-scan.py`、`lint-skin.py --all --baseline`、`pytest tests` 全綠。`test-verify-docs-sync.py` 在本機 CRLF 檢出下失敗，base 上同樣失敗（上游 #465，已知，見第四輪）。沒裝 Playwright 瀏覽器，像素類檢查交給 CI。
 
@@ -504,3 +501,52 @@ Baseline 推進：`reviewed_through` → `6a7f19f`、`reviewed_pr_through` → 5
 **驗證（2026-11-12，Windows 原生）**：`npm ci --prefix .github/ci/node` 成功；`.github/ci/node/node_modules/.bin/claude plugin validate . --strict` 通過（exit 0）；`tools\dev_check.ps1` 全綠；`scripts/verify-plugin-package.py --require-no-bump origin/main` 通過（外掛版號不變）；`scripts/test-maintainer-policy.py` 通過。
 
 **未解**：Dependabot 對 `.github/ci/*` 建 PR 的 400 根因未查明。下次月度排程若仍出現失敗 run，再決定是否把 CI 工具目錄搬出 `.github/`，或接受 Dependabot 在此路徑無法開 PR、由維護者手動追版。
+
+## 2026-11-21：第十一輪上游審查（commit 至 d74d8c2、PR 至 #535、issue 至 #526）
+
+上一輪水位 `6a7f19f` 之後上游進 40 個 commit（20 筆 `chore(release)` 版號 bump 2.6.149 至 2.6.168、20 筆修正或功能）、16 個新 PR（#516–#535 中的 16 個）、4 個新 issue（#518、#519、#525、#526），以及 monitored 的 #478／#479／#491／#492／#510／#512／#513／#514／#515 轉為 closed（#478 未合併，其餘已合併）、#498 head 漂移。`Upstream check` 紅燈即由這些而來。
+
+判準六：130 個變更檔中，本 fork 相對 `6a7f19f` 有覆蓋層的只有 10 個：`ci.yml`／`auto-bump.yml`／`ci-configuration.yml`（fork 的 action 釘版與 `auto-bump` 的官方 repo guard）、`CONTRIBUTING.md`／`README.md`（頂部 overlay、`Pillow==13.0.0`）、`AGENTS.md`（本 fork 自有，取代上游檔）、`CHANGELOG.md`（本 fork 維護史），以及 #479 移植的 `mermaid_extract.py`／`verify-mermaid-import.py`／`import-mermaid.md`。其餘 120 檔以 `git diff --binary 6a7f19f upstream/main` 3-way 套用，無衝突。判準八：整份 diff（21,225 行，不含 PNG）掃 40 字元以上空白後接內容、`eval`／`new Function`／`globalThis`／`atob`／`fromCharCode`／`os.system`／`socket`／`urllib`、100 字元以上 base64 樣式，0 命中；500 字元以上單行全是 manifest／文件說明與範例 HTML；`<script`／`!includeurl`／`IGNORE ALL PREVIOUS INSTRUCTIONS` 只出現在 PlantUML、quadrant 匯入與 box-plot 驗證器的對抗測試字串（測試斷言它們不會進入輸出）；新增測試的 `subprocess.run` 都以 `sys.executable` 跑隨附的驗證器。
+
+### commit 軸（40 筆）全採
+| 上游 commit | 內容 | 本 fork 處理 |
+|---|---|---|
+| `49e9175` #479 | 連字號節點 id 保持完整 | 採，**以上游版本取代第五輪的移植**：三個 mermaid 檔直接取 `upstream/main`。取代前先用本 fork 舊的 `check_hyphenated_node_ids`（`HEAD:scripts/verify-mermaid-import.py`）對上游 extractor 跑，全過，缺陷在上游版本已修；第五輪「分歧清單新增」一段已刪 |
+| `7491d96` #512、`1d48441` #510、`1108429` #284、`3666580` #522 | Mermaid ER 字詞別名與點狀連線、標籤中的撇號、compact 標籤保留空白與括號、`quadrantChart` 匯入 | 採（同上，三個 mermaid 檔取上游版本）。#522 另改 `SKILL.md`、`commands/`、`prompts/` 與新 fixture；上游 `CHANGELOG.md` 一行不採 |
+| `6869b1e` #358 | PlantUML sequence／class 匯入（新 extractor、驗證器、測試） | 採 |
+| `eb46053` #513 | `verify_geometry.py` 打包進 skill 目錄 | 採 |
+| `9f78b97` #514 | `self_check.py` 檢查框內文字超出寬度預算 | 採 |
+| `0e7cd83` #515 | SKILL.md 加「render and look」步驟並縮短 taste gate | 採 |
+| `3adbd1c` #516 | 500 字元 plugin `description` 改為概括類型家族，完整型別清單留在 SKILL.md 與 Codex `longDescription`（ADR 0004 修訂） | 採。上游 `AGENTS.md` 的對應句改寫進本 fork `AGENTS.md`「新增圖表型別」清單的 Plugin manifests 項 |
+| `a820b9a` #402 SBGN、`7fea81c` #491 requirement traceability、`610ad4c` #492 event modeling、`ab95cb0` #457 steps、`3ed137c` #198 unit grid、`7730491` #527 schedule network | 6 個新型別，`VISUAL_TYPE_COUNT` 45→51 | 採。上游已合併，新增型別屬上游策展、合併後跟（同第十輪 #436）。第七、九、十輪對 #491／#492 的「不採」原判以「上游合併才跟」為觸發條件，已成立。fork 文件計數由 `tests/test_fork_overlay.py::test_overlay_docs_use_the_counted_type_total` 擋住：套用後先紅（`FORK.md` 仍寫 45 種），再把 `FORK.md`、`AGENTS.md` 兩處、`GITHUB_REPO.md:5` 改為 51 種。遠端 Description 的同步列入 `ROADMAP.md` 近期（要推送後才做） |
+| `c6f689e` #517、`d096f3d` #433、`69b88c0` #524 | box-plot 讀無引號與無值屬性、驗證器不把引號內 CSS 當幾何宣告、拒收跳脫的 CSS 屬性名（新 `css_property_scan.py`，11 個驗證器共用） | 採。`ci.yml`／`.maintainer-policy.json`／`CONTRIBUTING.md` 的新步驟一併採 |
+| `4831326` #499 | ci-dependencies 群組升 action 版本 | **只採非 `uses:` 的部分**。`ci.yml` 的 `python39-compat` 上游也改釘 `ubuntu-24.04`，第八輪的 fork 分歧消失，註解改用上游版本；`setup-uv`（fork v10.3.2、上游 v10.3.3）與 `zizmor-action`（fork v0.8.0、上游 v0.8.1）維持 fork 的 Dependabot 釘版，同第七輪 #499 原判。觸發條件：fork Dependabot 開出對應 PR 時照常審 |
+| 20 筆 `chore(release)` | 外掛 manifests 2.6.149 至 2.6.168 | 採 |
+
+套用後 Ruff（E9+F）報上游新檔的 4 個未用 import（`test-verify-schedule-network.py` 的 `subprocess`／`sys`、`verify-schedule-network.py`、`verify-steps.py` 的 `sys`），依 `pyproject.toml` 既有做法記進 `per-file-ignores`，不改上游檔；上游修掉後刪除該列。
+
+### PR 軸
+| PR | 結論與證據 |
+|---|---|
+| #510、#512、#513、#514、#515、#516、#517、#522、#524、#527、#479、#491、#492 | MERGED，見 commit 軸；從 `monitored` 移除 |
+| #478 | CLOSED 未合併（#479 的超集已以上游 #479 為準）；從 `monitored` 移除 |
+| #529 `31e09a0`（+1/-1） | **延後並釘住**。`test-verify-ridgeline.py:87` 的 `write_text(newline=)` 在 Python 3.9 會崩，缺陷在本 fork 存在；但本 fork CI 的 3.9 job 不跑這支測試，overlay gate 也不跑，產品驗證腳本在本 fork 需 Python 3.10+（`AGENTS.md`）。觸發條件：上游合併，或本 fork 的 3.9 job 開始跑 ridgeline 測試 |
+| #528 `c6c7d58`（+120/-21，issue #518 第 1 項）、#530 `8683a4f`、#532 `699cc15`、#533 `6d8d3a3`、#534 `f4e98fc`、#535 `3e9dd80`（box-plot／驗證器補強，對應 issue #487 剩餘項） | **延後並釘住**。上游新驗證器的補強，非 Windows／CJK 類，上游未審；本 fork 沒有依賴這些驗證器的自有流程。觸發條件：上游合併 |
+| #520 `aeaab97` packet 型別、#523 `87f2670` git graph 型別 | **延後並釘住**。新圖表型別，上游策展範圍；觸發條件：上游合併 |
+| #531 `17ae48c`（Claude Desktop skill ZIP，對應 issue #525） | **延後並釘住**。打包功能，上游未審；觸發條件：上游合併，或維護者要把 skill 匯入 Claude Desktop |
+| #521 `70e4dea`（Muse plugin，draft） | **延後並釘住**。新宿主支援，draft；觸發條件：上游合併 |
+| #498 `09ef930` | 維持延後並重釘。仍是 `--simplediagrams` 匯出（+7913/-17），原判不變 |
+| #508 | head 與 state 未動，維持原判 |
+
+### issue 軸
+| Issue | 結論與證據 |
+|---|---|
+| #518 驗證器三個 CSS 解析缺口 | OPEN。第 2 項由 #524 修復並已採；第 1 項對應 #528、第 3 項對應 #529，皆延後。觸發條件同兩個 PR |
+| #519 Packet 型別提案 | OPEN，對應 #520，同 #520 延後 |
+| #525 匯入 Claude Desktop 超過 200 檔 | OPEN，對應 #531，同 #531 延後 |
+| #526 Schedule network 型別提案 | CLOSED（completed），由 #527 實作並已採 |
+
+### 驗證
+`tools\dev_check.ps1` 全綠（ruff E9+F、pytest、文件連結）；`python tools/check_upstream_updates.py --strict` exit 0。`.maintainer-policy.json` 的 `gates.local_commands` 中 101 條 `python3 scripts/...` 逐條在本機（Windows、Python 3.14）跑：93 條通過，`test-plugin-package.py` 首跑失敗、單獨重跑全過。其餘 7 條是本機沒裝 Playwright Chromium 的瀏覽器段：`lint-render.py --self-test`／`--all`、`verify-excalidraw-import.py` 與其測試、`verify-plantuml-import.py` 與其測試、`test-export-wait.py`（與第四至六輪同類），交給 CI。`test-verify-plantuml-import.py` 首跑另報 `oversized dash line did not fail before the arrow scan`，那是 2 秒的計時斷言，在機器負載下超時；單獨重跑時這項通過，只停在 Playwright 段。這兩支檔案與 `upstream/main` 逐位元組相同，不是 fork 造成的。`verify-plugin-package.py --require-no-bump origin/main` 與 `npm ci` + `claude plugin validate` 沒跑（manifest 版號採上游版本，交 CI）。
+
+Baseline 推進：`reviewed_through` → `d74d8c2`、`reviewed_pr_through` → 535、`reviewed_issue_through` → 526；`monitored` 移除 #478、#479、#491、#492、#510、#512、#513、#514、#515，#498 重釘 `09ef930`，新增 #520、#521、#523、#528–#535 釘在本輪審過的 head。

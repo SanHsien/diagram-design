@@ -4,17 +4,18 @@
 > 現況段的數字是 2026-11-08 依 `main` `5390ab9` 查的快照，開工前先重查 GitHub。
 
 ## 現況
-本 repo 是 cathrynlavery/diagram-design 的 Windows 原生維護 fork，提供編輯級 HTML／SVG 圖表 skill。2026-11-08 `gh` 查詢：`5390ab9` 的 Dependency Graph、CodeQL、Fork maintenance 為 success；open Dependabot 告警 0 筆、open PR 0 筆；Issues 停用。遠端 Description 原寫 39 種、`GITHUB_REPO.md:5` 寫 45 種，已於 2026-11-08 以 `gh repo edit` 同步為與 `GITHUB_REPO.md:5` 相同的字串。2026-10-25 有三次 `uv in /.github/ci/python for pillow - Update` 的 Dependabot job failure（job #1651023724、#1651040889、#1651045404；最後一次的 run ID 是 40165142831），同日 04:49 另有 `uv in /.github/ci/python - Update`（run 40163276311）與 `npm_and_yarn in /.github/ci/node - Update`（run 40163276320）各失敗一次；05:24 的 `Configured Graph Update: uv in /.github/ci/python`（run 40165431610）為 success。這些失敗的原因未另行查明。上游已審到 `e57eda6`（`tools/upstream_baseline.json`，2026-11-08 第九輪：採 #507 sequence OAuth 驗證與版本 2.6.142，#508 延後並釘住，另 5 個釘住項目重釘；`python tools/check_upstream_updates.py --strict` exit 0；見 `docs/fork/DECISIONS.md` 同日段）。
+本 repo 是 cathrynlavery/diagram-design 的 Windows 原生維護 fork，提供編輯級 HTML／SVG 圖表 skill。2026-11-08 `gh` 查詢：`5390ab9` 的 Dependency Graph、CodeQL、Fork maintenance 為 success；open Dependabot 告警 0 筆、open PR 0 筆；Issues 停用。遠端 Description 原寫 39 種、`GITHUB_REPO.md:5` 寫 45 種，已於 2026-11-08 以 `gh repo edit` 同步為與 `GITHUB_REPO.md:5` 相同的字串。2026-10-25 有三次 `uv in /.github/ci/python for pillow - Update` 的 Dependabot job failure（job #1651023724、#1651040889、#1651045404；最後一次的 run ID 是 40165142831），同日 04:49 另有 `uv in /.github/ci/python - Update`（run 40163276311）與 `npm_and_yarn in /.github/ci/node - Update`（run 40163276320）各失敗一次；05:24 的 `Configured Graph Update: uv in /.github/ci/python`（run 40165431610）為 success。這些失敗的原因未另行查明。上游已審到 `d74d8c2`（`tools/upstream_baseline.json`，2026-11-21 第十一輪：40 個 commit 全採、版本 2.6.168、型別 51 種，13 個 PR 釘住；見 `docs/fork/DECISIONS.md` 同日段）。
 
 ## 近期：可以直接動手
 
-目前沒有近期項目。
+| 項目 | 驗收方式 | 建議執行者 | 證據 |
+| --- | --- | --- | --- |
+| 推送後把遠端 Description 的型別數同步為 51 種 | 推送 2026-11-21 第十一輪同步後跑 `gh repo edit SanHsien/diagram-design --description "<GITHUB_REPO.md:5 的字串>"`；`gh repo view --json description` 與 `GITHUB_REPO.md:5` 逐字相同 | Codex | `GITHUB_REPO.md:5`（已改 51 種）；`docs/fork/DECISIONS.md` 2026-11-21 段 |
 
 ## 中期：等條件成立再做
 | 項目 | 觸發條件 | 驗收方式 | 建議執行者 | 證據 |
 | --- | --- | --- | --- | --- |
-| 同步上游新提交與圖表模板更新 | 觸發條件已成立（2026-11-21 查：`python tools/check_upstream_updates.py --strict` exit 1：baseline `6a7f19f` 後 40 個 commit）。原條件：`Upstream check` workflow 轉為 failure（上游有未審項目）或上游 main 有新 commit | 執行 `python tools/check_upstream_updates.py`，讀完 diff 後更新 `tools/upstream_baseline.json` 與 `docs/fork/DECISIONS.md`，`Upstream check` 與 CI 綠（上次完成：2026-11-09） | Codex | `tools/upstream_baseline.json`；`tools/check_upstream_updates.py` |
-| 上游合併或改 head 的 #479／#478 時，改用上游版本 | 觸發條件已成立（2026-11-21 查：上游 #479 於 2026-11-12 合併，#478 同日關閉未合併）。原條件：上游合併 #479，或 #479／#478 head 變動（`docs/fork/DECISIONS.md:313`、`:347`） | 以上游版本取代本 fork 的移植，刪除 `docs/fork/DECISIONS.md:313` 那段分歧說明；`python scripts/verify-mermaid-import.py` 綠；`monitored` 移除 `pr#479`、`pr#478` | Claude Sonnet | `docs/fork/DECISIONS.md:313`、`:347`；`tools/upstream_baseline.json` 的 `monitored` |
+| 同步上游新提交與圖表模板更新 | `Upstream check` workflow 轉為 failure（上游有未審項目）或上游 main 有新 commit | 執行 `python tools/check_upstream_updates.py`，讀完 diff 後更新 `tools/upstream_baseline.json` 與 `docs/fork/DECISIONS.md`，`Upstream check` 與 CI 綠（上次完成：2026-11-21） | Codex | `tools/upstream_baseline.json`；`tools/check_upstream_updates.py` |
 
 ## 刻意不做
 | 不做什麼 | 理由 | 什麼情況下重新考慮 |

@@ -16,7 +16,7 @@ Use it from an **editable clone** (this checkout). Managed marketplace installs 
 | Match a brand | [R3](#r3-onboard-a-skin) |
 | Choose type / pattern / size without rereading the whole skill | [R4](#r4-selection-cheat-sheet) |
 | Browse shipped examples | [R5](#r5-gallery-and-templates) |
-| Redraw draw.io or Mermaid | [R6](#r6-import) |
+| Redraw draw.io, Mermaid, Excalidraw, or PlantUML | [R6](#r6-import) |
 | Hand off SVG or PNG | [R7](#r7-export) |
 | Check a generated HTML file | [R8](#r8-taste-and-geometry-gates) |
 | Paste a request to an agent | [R9](#r9-prompt-pack) |
@@ -109,7 +109,8 @@ Work in the **project that will own the HTML**, not inside `skills/diagram-desig
 2. **Confirm before drawing** ([SKILL.md §3](../skills/diagram-design/SKILL.md)): visual type, optional semantic pattern, size preset, and what the complexity budget will cut.
 3. **Load** the matching `references/type-*.md` before writing SVG. If a semantic pattern applies, load [`semantic-patterns.md`](../skills/diagram-design/references/semantic-patterns.md) first.
 4. **Write** a self-contained HTML file in the project (for example `docs/diagrams/<name>.html`). Do not silently overwrite gallery examples.
-5. **Run** the pre-output checklist ([SKILL.md §9](../skills/diagram-design/SKILL.md)). Orthogonal connectors, 4px grid, ≤9 nodes unless you split, accent on ≤2 focals.
+5. **Render and look** ([SKILL.md §10](../skills/diagram-design/SKILL.md)): rasterize a scratch preview with `scripts/export_png.py`, open it, and fix overlaps or clipping before the checklist.
+6. **Run** the pre-output checklist ([SKILL.md §9](../skills/diagram-design/SKILL.md)). Orthogonal connectors, 4px grid, ≤9 nodes unless you split, accent on ≤2 focals.
 
 Marker file at the project root, entire file:
 
@@ -187,7 +188,7 @@ Shipped examples are `assets/example-<type>.html` plus `-dark` and `-full` varia
 
 ## R6. Import
 
-Load [`import-drawio.md`](../skills/diagram-design/references/import-drawio.md), [`import-mermaid.md`](../skills/diagram-design/references/import-mermaid.md), or [`import-excalidraw.md`](../skills/diagram-design/references/import-excalidraw.md) and set the four dials **before** redrawing ([output-spec.md](../skills/diagram-design/references/output-spec.md)):
+Load [`import-drawio.md`](../skills/diagram-design/references/import-drawio.md), [`import-mermaid.md`](../skills/diagram-design/references/import-mermaid.md), [`import-excalidraw.md`](../skills/diagram-design/references/import-excalidraw.md), or [`import-plantuml.md`](../skills/diagram-design/references/import-plantuml.md) and set the four dials **before** redrawing ([output-spec.md](../skills/diagram-design/references/output-spec.md)):
 
 | Dial | Typical values |
 |---|---|
@@ -196,9 +197,9 @@ Load [`import-drawio.md`](../skills/diagram-design/references/import-drawio.md),
 | Detail | `faithful` · `balanced` · `simplified` |
 | Audience | `engineer` · `mixed` · `executive` |
 
-Slash forms (Claude): `/diagram-design:import-drawio <file>`, `/diagram-design:import-mermaid <file-or-md>`, and `/diagram-design:import-excalidraw <file>`. Always report a **fidelity ledger** (merged, collapsed, dropped). Source coordinates, source palette, Mermaid auto-layout, and Excalidraw hand-drawn geometry do not carry over.
+Slash forms (Claude): `/diagram-design:import-drawio <file>`, `/diagram-design:import-mermaid <file-or-md>`, `/diagram-design:import-excalidraw <file>`, and `/diagram-design:import-plantuml <file>`. Always report a **fidelity ledger** (merged, collapsed, dropped). Source coordinates, source palette, Mermaid auto-layout, Excalidraw hand-drawn geometry, and PlantUML skinparams do not carry over.
 
-Extractors in this checkout: `skills/diagram-design/scripts/drawio_extract.py`, `mermaid_extract.py`, `excalidraw_extract.py`.
+Extractors in this checkout: `skills/diagram-design/scripts/drawio_extract.py`, `mermaid_extract.py`, `excalidraw_extract.py`, `plantuml_extract.py`.
 
 ---
 
