@@ -550,3 +550,20 @@ Baseline 推進：`reviewed_through` → `6a7f19f`、`reviewed_pr_through` → 5
 `tools\dev_check.ps1` 全綠（ruff E9+F、pytest、文件連結）；`python tools/check_upstream_updates.py --strict` exit 0。`.maintainer-policy.json` 的 `gates.local_commands` 中 101 條 `python3 scripts/...` 逐條在本機（Windows、Python 3.14）跑：93 條通過，`test-plugin-package.py` 首跑失敗、單獨重跑全過。其餘 7 條是本機沒裝 Playwright Chromium 的瀏覽器段：`lint-render.py --self-test`／`--all`、`verify-excalidraw-import.py` 與其測試、`verify-plantuml-import.py` 與其測試、`test-export-wait.py`（與第四至六輪同類），交給 CI。`test-verify-plantuml-import.py` 首跑另報 `oversized dash line did not fail before the arrow scan`，那是 2 秒的計時斷言，在機器負載下超時；單獨重跑時這項通過，只停在 Playwright 段。這兩支檔案與 `upstream/main` 逐位元組相同，不是 fork 造成的。`verify-plugin-package.py --require-no-bump origin/main` 與 `npm ci` + `claude plugin validate` 沒跑（manifest 版號採上游版本，交 CI）。
 
 Baseline 推進：`reviewed_through` → `d74d8c2`、`reviewed_pr_through` → 535、`reviewed_issue_through` → 526；`monitored` 移除 #478、#479、#491、#492、#510、#512、#513、#514、#515，#498 重釘 `09ef930`，新增 #520、#521、#523、#528–#535 釘在本輪審過的 head。
+
+## 2026-11-22：第十一輪補記（PR 至 #537）
+
+第十一輪 baseline 提交後、推送前，上游再開 2 個 PR（#536、#537），`--strict` 因此 exit 1。上游 `main` 仍在 `d74d8c2`，沒有新 commit；issue 最新仍是 #526，issue 水位不動；13 個 monitored 項目的 head 與 state 都沒變。
+
+判準八：兩份 diff（133 行、1,346 行）的新增行掃 `eval(`／`new Function`／`globalThis`／`atob`／`fromCharCode`／`os.system`／`socket`／`urllib`／`requests.`／`curl`／`wget`／`fetch(`／`exec(`／`base64`、100 字元以上 base64 樣式、40 字元以上空白後接內容，0 命中。#537 的 3 個 `https://` 都是 preset 檔裡的 Google Fonts `<link>`，與現有 `references/style-guide.md` 的那一條逐字相同，不是新的網路端點；新增測試的 `subprocess.run` 以 `sys.executable` 跑隨附的 `verify-contrast.py`，`write_text` 只寫進測試自己的暫存目錄。
+
+### PR 軸
+| PR | 結論與證據 |
+|---|---|
+| #536 `fabfa63`（+48/-8，5 檔，issue #518 第 1、3 項） | **延後並釘住**。`verify-architecture-delta.py`／`verify-marimekko.py` 各加一個 `mask_all_css_strings`，讓引號內的 `{`、`}`、空白不再打斷規則切分；另把 `test-verify-ridgeline.py` 的 `write_text(newline=)` 改成 `write_bytes`。範圍與已釘住的 #528（第 1 項）、#529（第 3 項）重疊，上游尚未決定收哪一個；理由同 #528／#529：上游驗證器補強，非 Windows／CJK 類，本 fork 沒有依賴這些驗證器的自有流程，3.9 job 也不跑 ridgeline 測試。觸發條件：上游合併（屆時 #528／#529 多半會被關閉，一併處理） |
+| #537 `a04c556`（+1066/-28，14 檔，對應 issue #497） | **延後並釘住**。三個隨附 skin preset（blueprint、mono-print、graphite）放在 `references/presets/`，`load`／`switch`／`list` 找不到使用者 profile 時複製隨附檔；`verify-contrast.py` 加 `--all-presets`。新功能，屬上游策展範圍，上游未審；會動到 `ci.yml`、`CONTRIBUTING.md`、`README.md` 三個 fork 覆蓋層檔，合併後跟比現在移植省事。觸發條件：上游合併 |
+
+### 驗證
+`tools\dev_check.ps1` exit 0；`python tools/check_upstream_updates.py --strict` exit 0。
+
+Baseline 推進：`reviewed_pr_through` → 537；`reviewed_through`、`reviewed_issue_through` 不變；`monitored` 新增 #536 `fabfa63`、#537 `a04c556`。

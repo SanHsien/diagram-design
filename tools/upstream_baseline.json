@@ -2,10 +2,10 @@
   "repo": "https://github.com/cathrynlavery/diagram-design.git",
   "branch": "main",
   "reviewed_through": "d74d8c2d0c78a9e1efd43137f6a9a51182a8b5f0",
-  "reviewed_date": "2026-11-21",
+  "reviewed_date": "2026-11-22",
   "decision_log": "docs/fork/DECISIONS.md",
-  "notes": "2026-09-13：第二輪 triage 與同步完成。合併上游至 8d8b299（#216，版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）以及 ADR 0009 自動版號架構。ci.yml 對齊 upstream ADR 0009，auto-bump.yml 加上 official guard。修復 check_upstream_updates.py 在 Windows CP950 下的 Unicode 編碼崩潰。PR 水位 → 222、issue 水位 → 220。 2026-09-30：第三輪審查至 57148ac／PR #263／issue #262；採用 #224/#223/#230/#260，其餘見 DECISIONS。 2026-10-25：第四輪整批同步至 0b9b10c（版本 2.6.120）／PR #472／issue #476；以上游樹為底重套覆蓋層，見 DECISIONS。 2026-10-26：第五輪審查至 10cfad6（版本 2.6.128）／PR #483／issue #482；採 16 個 commit 與未合併的 #479、#483，見 DECISIONS。 2026-10-28：第六輪審查至 0cf73c3（版本 2.6.136）／PR #486／issue #489；採 16 個 commit（含已合併的 #481、#483），#486 延後並以 monitored 釘住，#478／#479 同樣釘住，見 DECISIONS。 2026-11-02：第七輪審查，PR／issue 水位 → 500；採 #494／#495／#496（未合併），其餘釘住，見 DECISIONS。 2026-11-04：第八輪審查至 f24d98b（版本 2.6.141）／PR #505／issue #505；10 個 commit 全採（#494／#495／#496 合併版與移植相同），#504、#505 延後釘住，見 DECISIONS。 2026-11-08：第九輪審查至 e57eda6（版本 2.6.142）／PR #508／issue #506；採 #507（sequence OAuth 驗證）與版號 bump，#508 延後釘住，#490／#491／#492／#498／#505 重釘，見 DECISIONS。 2026-11-09：第十輪審查至 6a7f19f（版本 2.6.148）／PR #515／issue #511；採 12 個 commit（#504 舊 stateDiagram 標頭、#505 ER 別名與引號名稱、#490/#509 box-plot 繪製與 CSS 規則檢查、#486 SVG 匯出 NCR 保留、#436 弧線圖 arc diagram 變體及 6 筆版號 bump），#491/#492/#498 重釘新 head，新開 PR #510/#512/#513/#514/#515 延後釘住，見 DECISIONS。 2026-11-21：第十一輪審查至 d74d8c2（版本 2.6.168）／PR #535／issue #526；40 個 commit 全採（含 #479 合併版取代 fork 移植、6 個新型別使型別計數 45→51），#499 的 action 釘版不採，11 個新開 PR 延後釘住，見 DECISIONS。",
-  "reviewed_pr_through": 535,
+  "notes": "2026-09-13：第二輪 triage 與同步完成。合併上游至 8d8b299（#216，版本 2.6.22）。涵蓋 Noto Sans TC 繁體中文支援（#186/#196）、Waterfall 瀑布圖（#191）、Excalidraw 匯入（#192）、PowerPoint SVG 匯出相容性（#151）以及 ADR 0009 自動版號架構。ci.yml 對齊 upstream ADR 0009，auto-bump.yml 加上 official guard。修復 check_upstream_updates.py 在 Windows CP950 下的 Unicode 編碼崩潰。PR 水位 → 222、issue 水位 → 220。 2026-09-30：第三輪審查至 57148ac／PR #263／issue #262；採用 #224/#223/#230/#260，其餘見 DECISIONS。 2026-10-25：第四輪整批同步至 0b9b10c（版本 2.6.120）／PR #472／issue #476；以上游樹為底重套覆蓋層，見 DECISIONS。 2026-10-26：第五輪審查至 10cfad6（版本 2.6.128）／PR #483／issue #482；採 16 個 commit 與未合併的 #479、#483，見 DECISIONS。 2026-10-28：第六輪審查至 0cf73c3（版本 2.6.136）／PR #486／issue #489；採 16 個 commit（含已合併的 #481、#483），#486 延後並以 monitored 釘住，#478／#479 同樣釘住，見 DECISIONS。 2026-11-02：第七輪審查，PR／issue 水位 → 500；採 #494／#495／#496（未合併），其餘釘住，見 DECISIONS。 2026-11-04：第八輪審查至 f24d98b（版本 2.6.141）／PR #505／issue #505；10 個 commit 全採（#494／#495／#496 合併版與移植相同），#504、#505 延後釘住，見 DECISIONS。 2026-11-08：第九輪審查至 e57eda6（版本 2.6.142）／PR #508／issue #506；採 #507（sequence OAuth 驗證）與版號 bump，#508 延後釘住，#490／#491／#492／#498／#505 重釘，見 DECISIONS。 2026-11-09：第十輪審查至 6a7f19f（版本 2.6.148）／PR #515／issue #511；採 12 個 commit（#504 舊 stateDiagram 標頭、#505 ER 別名與引號名稱、#490/#509 box-plot 繪製與 CSS 規則檢查、#486 SVG 匯出 NCR 保留、#436 弧線圖 arc diagram 變體及 6 筆版號 bump），#491/#492/#498 重釘新 head，新開 PR #510/#512/#513/#514/#515 延後釘住，見 DECISIONS。 2026-11-21：第十一輪審查至 d74d8c2（版本 2.6.168）／PR #535／issue #526；40 個 commit 全採（含 #479 合併版取代 fork 移植、6 個新型別使型別計數 45→51），#499 的 action 釘版不採，11 個新開 PR 延後釘住，見 DECISIONS。 2026-11-22：第十一輪補記，PR 水位 → 537；新開的 #536、#537 延後釘住，見 DECISIONS。",
+  "reviewed_pr_through": 537,
   "reviewed_issue_through": 526,
   "monitored": [
     {
@@ -71,6 +71,16 @@
     {
       "item": "pr#535",
       "head": "3e9dd80803d7965376602a899db01aeb397ea7b6",
+      "state": "open"
+    },
+    {
+      "item": "pr#536",
+      "head": "fabfa637730c9c159efda2d456418c7411eeb668",
+      "state": "open"
+    },
+    {
+      "item": "pr#537",
+      "head": "a04c55645d6c5731aade4622a7f47c8f233af150",
       "state": "open"
     }
   ]
